@@ -37,7 +37,7 @@ Ako želiš probati isto:
 ---
 ### Bonus tip
 
-Ako trebaš odjednom kopirati više stvari, prvo sve kopiraš, a zatim odeš na stranicu ili dokument na koji trebaš zalijepiti sve i  
+Ako trebaš odjednom kopirati više stvari, prvo sve kopiraš, a zatim odeš na stranicu ili dokument na koji trebaš zalijepiti sve i 
 stisneš **WIN + V** (ili taj prečac dodijeliš na **F4** pomoću **PowerToysa**), nakon čega  
 će ti se otvoriti **Clipboard history** iz kojeg biraš što želiš zalijepiti. 💡
 
