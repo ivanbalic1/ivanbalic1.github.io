@@ -1,89 +1,17 @@
-<!DOCTYPE html>
-<html lang="hr">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Moj Blog</title>
-  <style>
-    body {
-      font-family: sans-serif;
-      background-color: #f8f8f8;
-      padding: 20px;
-    }
-    h1 {
-      text-align: center;
-    }
-    .post {
-      background: white;
-      padding: 15px;
-      margin: 10px 0;
-      border-radius: 10px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-    form {
-      margin-top: 20px;
-      background: #fff;
-      padding: 15px;
-      border-radius: 10px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-    input, textarea {
-      width: 100%;
-      margin-bottom: 10px;
-      padding: 10px;
-      border-radius: 5px;
-      border: 1px solid #ccc;
-    }
-    button {
-      background-color: #4CAF50;
-      color: white;
-      padding: 10px 20px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #45a049;
-    }
-  </style>
-</head>
-<body>
-  <h1>Moj Blog</h1>
+---
+layout: default
+title: Moj Blog
+---
 
-  <div id="posts">
-    <div class="post">
-      <h2>Prvi post</h2>
-      <p>Ovo je moj prvi blog post. Dobrodošli!</p>
-    </div>
-    <div class="post">
-      <h2>Drugi post</h2>
-      <p>Danas sam naučio kako napraviti jednostavan blog. Super je osjećaj!</p>
-    </div>
-  </div>
+<h1>{{ page.title }}</h1>
 
-  <form id="postForm">
-    <h2>Napiši novi post</h2>
-    <input type="text" id="title" placeholder="Naslov" required />
-    <textarea id="content" placeholder="Sadržaj posta" rows="4" required></textarea>
-    <button type="submit">Objavi</button>
-  </form>
+<ul>
+  {% for post in site.posts %}
+    <li style="margin-bottom: 30px;">
+      <h2><a href="{{ post.url }}">{{ post.title }}</a></h2>
+      <p><small>{{ post.date | date: "%d.%m.%Y." }}</small></p>
+      <p>{{ post.excerpt }}</p>
+    </li>
+  {% endfor %}
+</ul>
 
-  <script>
-    const form = document.getElementById('postForm');
-    const posts = document.getElementById('posts');
-
-    form.addEventListener('submit', function(e) {
-      e.preventDefault();
-      const title = document.getElementById('title').value;
-      const content = document.getElementById('content').value;
-
-      const newPost = document.createElement('div');
-      newPost.classList.add('post');
-      newPost.innerHTML = `<h2>${title}</h2><p>${content}</p>`;
-      posts.prepend(newPost); // Dodaj novi post na vrh
-
-      form.reset(); // Očisti formu
-    });
-  </script>
-</body>
-</html>
