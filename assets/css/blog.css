@@ -1,8 +1,8 @@
 /* Centriranje sadržaja objave */
 article {
   display: flex;
-  justify-content: center;
-  align-items: center;
+  justify-content: left;
+  align-items: left;
   text-align: left; /* Tekst unutar objave će biti poravnat lijevo */
   margin: 0 auto;
   max-width: 800px; /* Postavi maksimalnu širinu ako je potrebno */
