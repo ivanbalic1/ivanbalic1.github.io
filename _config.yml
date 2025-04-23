@@ -2,4 +2,4 @@ title: Moj Blog
 description: Blog koji pišem uz kavu ☕
 baseurl: ""
 url: "https://ivanbalic1.github.io"
-theme: jekyll-theme-minimal
+theme: minima
