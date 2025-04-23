@@ -1,38 +1,22 @@
-body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: #f9f9f9;
-  color: #333;
-  line-height: 1.6;
-  margin: 0;
-  padding: 0;
-  text-align: center; /* Centriranje cijele stranice */
-}
-
-h1, h2, h3 {
-  color: #005f73;
+/* Centriranje sadržaja objave */
+article {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: left; /* Tekst unutar objave će biti poravnat lijevo */
+  margin: 0 auto;
+  max-width: 800px; /* Postavi maksimalnu širinu ako je potrebno */
 }
 
 .container {
-  max-width: 800px;
-  margin: 2rem auto; /* Margin s vrha i automatsko centriranje s obje strane */
   padding: 2rem;
   background: white;
   box-shadow: 0 0 10px rgba(0,0,0,0.1);
   border-radius: 8px;
-  text-align: left; /* Tekst unutar kontejnera ostaje poravnat lijevo */
+  width: 100%; /* Ako želiš da kontejner bude širine 100% */
 }
 
-code {
-  background: #eee;
-  padding: 0.2em 0.4em;
-  border-radius: 4px;
-  font-size: 0.95em;
-}
-
-pre {
-  background: #272822;
-  color: #f8f8f2;
-  padding: 1em;
-  border-radius: 8px;
-  overflow-x: auto;
+/* Dodatno, ako želiš centrirati naslove unutar objave */
+h1, h2, h3 {
+  text-align: center; /* Naslovi će biti centrirani */
 }
