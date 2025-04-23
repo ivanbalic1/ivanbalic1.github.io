@@ -1,11 +1,16 @@
-/* Centriranje sadržaja objave */
-article {
-  display: flex;
-  justify-content: left;
-  align-items: left;
-  text-align: left; /* Tekst unutar objave će biti poravnat lijevo */
-  margin: 0 auto;
-  max-width: 800px; /* Postavi maksimalnu širinu ako je potrebno */
+/* Globalni stilovi */
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #f9f9f9;
+  color: #333;
+  line-height: 1.6;
+  margin: 0;
+  padding: 0;
+  text-align: center; /* Centriranje cijele stranice */
+}
+
+h1, h2, h3 {
+  color: #005f73;
 }
 
 .container {
@@ -13,10 +18,38 @@ article {
   background: white;
   box-shadow: 0 0 10px rgba(0,0,0,0.1);
   border-radius: 8px;
-  width: 100%; /* Ako želiš da kontejner bude širine 100% */
+  width: 100%; /* Da se koristi cijeli prostor kontejnera */
+  max-width: 800px; /* Ograničavanje širine */
+  margin: 0 auto; /* Centriranje kontejnera */
+  text-align: left; /* Tekst ostaje lijevo unutar kontejnera */
 }
 
-/* Dodatno, ako želiš centrirati naslove unutar objave */
+/* Centriranje sadržaja objave */
+article {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: left; /* Tekst unutar objave bit će lijevo poravnat */
+  margin: 0 auto;
+  max-width: 800px; /* Ograničavanje širine za objavu */
+}
+
+/* Centriranje naslova unutar objave */
 h1, h2, h3 {
-  text-align: center; /* Naslovi će biti centrirani */
+  text-align: center; /* Naslovi unutar objave bit će centrirani */
+}
+
+code {
+  background: #eee;
+  padding: 0.2em 0.4em;
+  border-radius: 4px;
+  font-size: 0.95em;
+}
+
+pre {
+  background: #272822;
+  color: #f8f8f2;
+  padding: 1em;
+  border-radius: 8px;
+  overflow-x: auto;
 }
