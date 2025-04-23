@@ -26,7 +26,6 @@ Sad samo lijevom rukom pritisnem F1 ili F3 — **ne mičem ruku s miša**. Brže
 
 ## Rezultat
 
-Osjećam se kao tipkarski ninja. 🥷⌨️  
 Mali trik, ali mi je doslovno uštedio **minute svaki dan**, što znači **sate svaki mjesec**.
 
 Ako želiš probati isto:
@@ -36,6 +35,10 @@ Ako želiš probati isto:
 3. Dodijeli funkcije koje tebi trebaju
 
 ---
+### Bonust  tip
+Ako trebaš odjednom kopirati više stvari, prvo sve kopiraš, zatim odeš na stranicu na koju trebaš zalijpiti sve i 
+stisneš WIN + V (ili taj prečac dodijeliš na F4 pomoću **Power Toysa**) nakon čega 
+će ti se otvoriti clipboard iz kojeg biraš što želiš zalijepiti.
 
 Probaj i ti neki svoj prečac. Kad jednom probaš, teško se vratiti na staro. 😉
 
