@@ -1,7 +1,7 @@
 # _config.yml
 title: Moj Blog
 description: "Blog o produktivnosti, tehnologiji i svakodnevnim trikovima."
-url: "https://tvoj-blog.com"  # Zamijeni s URL-om svog bloga
+url: "https://ivanbalic1.github.io/blog.html"  # Zamijeni s URL-om svog bloga
 baseurl: ""  # Ako koristiš poddirektorij, postavi putanju
 
 # Tema za Jekyll
