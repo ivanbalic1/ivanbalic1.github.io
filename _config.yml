@@ -1,5 +1,21 @@
+# _config.yml
 title: Moj Blog
-description: Blog koji pišem uz kavu ☕
-baseurl: ""
-url: "https://ivanbalic1.github.io"
-theme: minima
+description: "Blog o produktivnosti, tehnologiji i svakodnevnim trikovima."
+url: "https://tvoj-blog.com"  # Zamijeni s URL-om svog bloga
+baseurl: ""  # Ako koristiš poddirektorij, postavi putanju
+
+# Tema za Jekyll
+theme: minima  # Možeš promijeniti temu prema želji (ili koristiti vlastitu)
+
+# Uključi sve postove u blogu
+paginate: 5  # Broj postova po stranici
+
+# SEO postavke
+seo:
+  twitter_card: summary_large_image
+  twitter_username: tvoj-twitter-handle
+  og_image: "slika.jpg"  # Dodaj putanju do slike za Open Graph
+
+# Custom konfiguracija
+markdown: kramdown  # Koristi Kramdown za Markdown sintaksu
+highlighter: rouge  # Za isticanje sintakse u kodu
