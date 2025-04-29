@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lectio Divina Player</title>
+  <style>
+    body {
+      background-color: #fdfaf2;
+      color: #645f57;
+      font-family: 'Courier New', Courier, monospace;
+      padding: 20px;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      box-sizing: border-box;
+    }
+
+    h1 {
+      color: #857c6f;
+      margin-bottom: 20px;
+      font-weight: normal;
+    }
+
+    .file-upload-wrapper {
+      position: relative;
+      overflow: hidden;
+      display: inline-block;
+      margin: 15px 0;
+    }
+
+    .file-upload-wrapper input[type="file"] {
+      font-size: 100px;
+      position: absolute;
+      left: 0;
+      top: 0;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .file-upload-button {
+      display: inline-block;
+      padding: 12px 20px;
+      font-size: 1em;
+      color: #3e3a36;
+      background-color: #d4cfc5;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s, transform 0.1s ease, box-shadow 0.3s;
+    }
+
+    .file-upload-button:hover {
+      background-color: #c1bbb2;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    .file-upload-button:active {
+      transform: scale(0.97);
+    }
+
+    #file-name {
+      margin-top: 10px;
+      font-style: italic;
+      font-size: 0.9em;
+      color: #7d766a;
+    }
+
+    button {
+      margin: 10px;
+      padding: 12px;
+      border-radius: 4px;
+      border: none;
+      font-size: 1em;
+      cursor: pointer;
+      background-color: #d4cfc5;
+      color: #3e3a36;
+      transition: background-color 0.3s, transform 0.1s ease, box-shadow 0.3s;
+    }
+
+    button:hover {
+      background-color: #c1bbb2;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    button:active {
+      transform: scale(0.97);
+    }
+
+    .duration-button {
+      margin: 6px;
+      padding: 10px 20px;
+      border-radius: 4px;
+      font-size: 1em;
+      border: none;
+      background-color: #e8e3da;
+      color: #3e3a36;
+      width: 45%;
+      transition: background-color 0.3s, transform 0.1s ease, box-shadow 0.3s;
+    }
+
+    .duration-button:hover {
+      background-color: #d8d2c8;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .duration-button:active {
+      transform: scale(0.97);
+    }
+
+    .duration-button.active {
+      background-color: #bfb7a8;
+      color: #fff;
+      font-weight: bold;
+    }
+
+    #instructions {
+      background-color: #f7f4ec;
+      border-radius: 10px;
+      padding: 20px;
+      margin: 20px 0;
+      text-align: left;
+      max-width: 700px;
+      width: 90%;
+      box-sizing: border-box;
+    }
+
+    #timer {
+      font-size: 2em;
+      margin-top: 20px;
+      color: #7d766a;
+      font-family: monospace;
+    }
+
+    #duration-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      margin-top: 10px;
+      max-width: 400px;
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      font-size: 1.1em;
+    }
+
+    @media (max-width: 600px) {
+      #duration-buttons {
+        justify-content: center;
+      }
+      .duration-button {
+        width: 80%;
+      }
+    }
+  </style>
+  <script>
+    let audio;
+    let meditationTimer;
+    let repeatCount = 0;
+    let maxRepeats = 4;
+    let timerInterval;
+    let elapsedSeconds = 0;
+    let selectedDuration = 5;
+
+    function handleFileUpload(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const url = URL.createObjectURL(file);
+        audio = new Audio(url);
+        document.getElementById('file-name').textContent = `Učitano: ${file.name}`;
+      }
+    }
+
+    function selectDuration(minutes) {
+      selectedDuration = minutes;
+      document.querySelectorAll('.duration-button').forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+    }
+
+    function startMeditation() {
+      if (!audio) {
+        alert('Please upload an audio file first.');
+        return;
+      }
+
+      repeatCount = 0;
+      elapsedSeconds = 0;
+      updateTimerDisplay();
+      startTimer();
+      playAudioRepeatedly(selectedDuration);
+    }
+
+    function playAudioRepeatedly(duration) {
+      if (repeatCount >= maxRepeats) {
+        stopTimer();
+        return;
+      }
+      audio.currentTime = 0;
+      audio.play();
+      audio.onended = () => {
+        repeatCount++;
+        if (repeatCount < maxRepeats) {
+          const interval = (duration * 60 * 1000) / maxRepeats - audio.duration * 1000;
+          meditationTimer = setTimeout(() => playAudioRepeatedly(duration), interval);
+        }
+      };
+    }
+
+    function stopMeditation() {
+      if (audio) {
+        audio.pause();
+        audio.currentTime = 0;
+      }
+      clearTimeout(meditationTimer);
+      stopTimer();
+    }
+
+    function startTimer() {
+      timerInterval = setInterval(() => {
+        elapsedSeconds++;
+        updateTimerDisplay();
+      }, 1000);
+    }
+
+    function stopTimer() {
+      clearInterval(timerInterval);
+    }
+
+    function updateTimerDisplay() {
+      const minutes = Math.floor(elapsedSeconds / 60);
+      const seconds = elapsedSeconds % 60;
+      document.getElementById('timer').textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    }
+
+    window.onload = function () {
+      const uploadBtn = document.querySelector('.file-upload-button');
+      const hiddenInput = document.querySelector('.file-upload-wrapper input[type="file"]');
+      uploadBtn.addEventListener('click', () => hiddenInput.click());
+    };
+  </script>
+</head>
+<body>
+  <h1>Lectio Divina Player</h1>
+
+  <div id="instructions">
+    <h2>Upute za Lectio Divinu</h2>
+    <ol>
+      <li><strong>Lectio (Čitanje)</strong>: Pažljivo slušaj odlomak. Što ti govori?</li>
+      <li><strong>Meditatio (Razmišljanje)</strong>: Razmišljaj o riječima koje su te dotakle.</li>
+      <li><strong>Oratio (Molitva)</strong>: Odgovori Bogu molitvom iz srca.</li>
+      <li><strong>Contemplatio (Kontemplacija)</strong>: Ostani u tišini u Božjoj prisutnosti.</li>
+    </ol>
+  </div>
+
+  <div class="file-upload-wrapper">
+    <button class="file-upload-button">Odaberi audio datoteku</button>
+    <input type="file" accept="audio/*" onchange="handleFileUpload(event)">
+    <div id="file-name"></div>
+  </div>
+
+  <div>
+    <label>Odaberi trajanje meditacije:</label>
+    <div id="duration-buttons">
+      <button class="duration-button" onclick="selectDuration(5)">5 min</button>
+      <button class="duration-button" onclick="selectDuration(10)">10 min</button>
+      <button class="duration-button" onclick="selectDuration(15)">15 min</button>
+      <button class="duration-button" onclick="selectDuration(20)">20 min</button>
+      <button class="duration-button" onclick="selectDuration(25)">25 min</button>
+      <button class="duration-button" onclick="selectDuration(30)">30 min</button>
+    </div>
+  </div>
+
+  <div>
+    <button onclick="startMeditation()">Počni</button>
+    <button onclick="stopMeditation()">Zaustavi</button>
+  </div>
+
+  <div>
+    <h2>Vrijeme: <span id="timer">0:00</span></h2>
+  </div>
+</body>
+</html>
