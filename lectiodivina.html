@@ -159,14 +159,29 @@
       100% { transform: scale(1); opacity: 0.5; }
     }
 
-    #preparation-message {
-      display: none;
-      margin-top: 20px;
-      font-size: 1.2em;
-      color: #6b655c;
-      animation: breathe 5s ease-in-out infinite;
-      text-align: center;
-    }
+    #preparation-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(253, 250, 242, 0.8);
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  animation: breathe 5s ease-in-out infinite;
+  opacity: 1;
+  transition: opacity 1s ease;
+}
+
+#preparation-overlay span {
+  font-size: 1.8em;
+  color: #6b655c;
+  padding: 20px;
+}
   </style>
   <script>
     let selectedDuration = 5;
@@ -218,9 +233,11 @@
       calculatedRepeats = Math.min(Math.floor(maxAudioTime / audioDurationMs), maxRepeats);
       if (calculatedRepeats < 1) calculatedRepeats = 1;
 
-      document.getElementById('preparation-message').style.display = 'block';
+      document.getElementById('preparation-overlay').style.display = 'flex';
       setTimeout(() => {
-        document.getElementById('preparation-message').style.display = 'none';
+        const overlay = document.getElementById('preparation-overlay');
+        overlay.style.opacity = '0';
+        setTimeout(() => overlay.style.display = 'none', 1000);
         playAudioRepeatedly();
       }, 10000);
     }
@@ -319,8 +336,8 @@
   <div>
     <h2>Vrijeme: <span id="timer">0:00</span></h2>
   </div>
-  <div id="preparation-message" style="display: none; margin-top: 20px; font-size: 1.2em; color: #6b655c;">
-    📿 Lectio Divina kreće za 10 sekundi... Udahni polako... još jednom...
-  </div>
+  <div id="preparation-overlay">
+  <span>📿 Lectio Divina kreće za 10 sekundi...<br>Udahni polako... još jednom...</span>
+</div>
 </body>
 </html>
