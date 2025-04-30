@@ -153,13 +153,19 @@
       color: #4a463f;
     }
 
-    @media (max-width: 600px) {
-      #duration-buttons {
-        justify-content: center;
-      }
-      .duration-button {
-        width: 80%;
-      }
+    @keyframes breathe {
+      0% { transform: scale(1); opacity: 0.5; }
+      50% { transform: scale(1.2); opacity: 1; }
+      100% { transform: scale(1); opacity: 0.5; }
+    }
+
+    #preparation-message {
+      display: none;
+      margin-top: 20px;
+      font-size: 1.2em;
+      color: #6b655c;
+      animation: breathe 5s ease-in-out infinite;
+      text-align: center;
     }
   </style>
   <script>
@@ -167,7 +173,8 @@
     let audio = null;
     let meditationTimer = null;
     let repeatCount = 0;
-    const maxRepeats = 4;
+    let maxRepeats = 4;
+    let calculatedRepeats = 0;
     let timerInterval = null;
     let elapsedSeconds = 0;
     const endSound = new Audio("https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg");
@@ -183,7 +190,9 @@
       if (file) {
         const url = URL.createObjectURL(file);
         audio = new Audio(url);
-        document.getElementById('file-name').textContent = `Učitano: ${file.name}`;
+        audio.addEventListener('loadedmetadata', () => {
+          document.getElementById('file-name').textContent = `Učitano: ${file.name} (${audio.duration.toFixed(1)} sekundi)`;
+        });
       }
     }
 
@@ -192,28 +201,45 @@
         alert("Prvo odaberi audio datoteku.");
         return;
       }
+      if (isNaN(audio.duration)) {
+        alert("Audio se još učitava. Pričekaj trenutak i pokušaj ponovo.");
+        return;
+      }
+
       repeatCount = 0;
       elapsedSeconds = 0;
       updateTimerDisplay();
       startTimer();
+
+      const totalTimeMs = selectedDuration * 60 * 1000;
+      const audioDurationMs = audio.duration * 1000;
+      const maxAudioTime = totalTimeMs * 0.3;
+
+      calculatedRepeats = Math.min(Math.floor(maxAudioTime / audioDurationMs), maxRepeats);
+      if (calculatedRepeats < 1) calculatedRepeats = 1;
+
+      document.getElementById('preparation-message').style.display = 'block';
       setTimeout(() => {
-        playAudioRepeatedly(selectedDuration);
+        document.getElementById('preparation-message').style.display = 'none';
+        playAudioRepeatedly();
       }, 10000);
     }
 
-    function playAudioRepeatedly(duration) {
-      if (repeatCount >= maxRepeats) {
+    function playAudioRepeatedly() {
+      if (repeatCount >= calculatedRepeats) {
         stopTimer();
         endSound.play();
         return;
       }
+
       audio.currentTime = 0;
       audio.play();
       audio.onended = () => {
         repeatCount++;
-        if (repeatCount < maxRepeats) {
-          const interval = (duration * 60 * 1000) / maxRepeats - audio.duration * 1000;
-          meditationTimer = setTimeout(() => playAudioRepeatedly(duration), interval);
+        if (repeatCount < calculatedRepeats) {
+          const totalTimeMs = selectedDuration * 60 * 1000;
+          const silenceTime = (totalTimeMs * 0.7) / calculatedRepeats;
+          meditationTimer = setTimeout(() => playAudioRepeatedly(), silenceTime);
         } else {
           stopTimer();
           endSound.play();
@@ -292,6 +318,9 @@
 
   <div>
     <h2>Vrijeme: <span id="timer">0:00</span></h2>
+  </div>
+  <div id="preparation-message" style="display: none; margin-top: 20px; font-size: 1.2em; color: #6b655c;">
+    📿 Lectio Divina kreće za 10 sekundi... Udahni polako... još jednom...
   </div>
 </body>
 </html>
