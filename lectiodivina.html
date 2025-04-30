@@ -160,6 +160,7 @@
     }
 
     #preparation-overlay {
+  visibility: hidden;
   display: none;
   position: fixed;
   top: 0;
@@ -233,16 +234,20 @@
       calculatedRepeats = Math.min(Math.floor(maxAudioTime / audioDurationMs), maxRepeats);
       if (calculatedRepeats < 1) calculatedRepeats = 1;
 
-      document.getElementById('preparation-overlay').style.display = 'flex';
+      const overlay = document.getElementById('preparation-overlay');
+overlay.style.display = 'flex';
+overlay.style.visibility = 'visible';
+overlay.style.opacity = '1';
       setTimeout(() => {
-        const overlay = document.getElementById('preparation-overlay');
-        overlay.style.opacity = '0';
-        setTimeout(() => overlay.style.display = 'none', 1000);
+        
         playAudioRepeatedly();
       }, 10000);
     }
 
     function playAudioRepeatedly() {
+      const overlay = document.getElementById('preparation-overlay');
+      overlay.style.opacity = '0';
+      setTimeout(() => overlay.style.display = 'none', 1000);
       if (repeatCount >= calculatedRepeats) {
         stopTimer();
         endSound.play();
