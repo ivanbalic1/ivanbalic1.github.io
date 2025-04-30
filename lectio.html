@@ -6,9 +6,9 @@
   <title>Lectio Divina Player</title>
   <style>
     body {
-      background-color: #fdfaf2;
-      color: #645f57;
-      font-family: 'Courier New', Courier, monospace;
+      background: linear-gradient(to bottom, #fdfaf2, #f5f2e7);
+      color: #4a463f;
+      font-family: 'Georgia', serif;
       padding: 20px;
       margin: 0;
       display: flex;
@@ -19,70 +19,32 @@
     }
 
     h1 {
-      color: #857c6f;
+      color: #6b655c;
       margin-bottom: 20px;
       font-weight: normal;
+      font-size: 2.2em;
     }
 
-    .file-upload-wrapper {
-      position: relative;
-      overflow: hidden;
-      display: inline-block;
-      margin: 15px 0;
-    }
-
-    .file-upload-wrapper input[type="file"] {
-      font-size: 100px;
-      position: absolute;
-      left: 0;
-      top: 0;
-      opacity: 0;
-      pointer-events: none;
-    }
-
-    .file-upload-button {
-      display: inline-block;
-      padding: 12px 20px;
-      font-size: 1em;
-      color: #3e3a36;
-      background-color: #d4cfc5;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      transition: background-color 0.3s, transform 0.1s ease, box-shadow 0.3s;
-    }
-
-    .file-upload-button:hover {
-      background-color: #c1bbb2;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    }
-
-    .file-upload-button:active {
-      transform: scale(0.97);
-    }
-
-    #file-name {
-      margin-top: 10px;
-      font-style: italic;
-      font-size: 0.9em;
-      color: #7d766a;
+    h2 {
+      color: #5c564d;
     }
 
     button {
       margin: 10px;
-      padding: 12px;
-      border-radius: 4px;
+      padding: 14px 28px;
+      border-radius: 25px;
       border: none;
       font-size: 1em;
       cursor: pointer;
-      background-color: #d4cfc5;
-      color: #3e3a36;
+      background-color: #a89f94;
+      color: #fff;
       transition: background-color 0.3s, transform 0.1s ease, box-shadow 0.3s;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.05);
     }
 
     button:hover {
-      background-color: #c1bbb2;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      background-color: #958c81;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
 
     button:active {
@@ -91,19 +53,20 @@
 
     .duration-button {
       margin: 6px;
-      padding: 10px 20px;
-      border-radius: 4px;
+      padding: 12px 20px;
+      border-radius: 25px;
       font-size: 1em;
       border: none;
-      background-color: #e8e3da;
+      background-color: #d6d0c7;
       color: #3e3a36;
       width: 45%;
       transition: background-color 0.3s, transform 0.1s ease, box-shadow 0.3s;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     }
 
     .duration-button:hover {
-      background-color: #d8d2c8;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      background-color: #c6c0b7;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     }
 
     .duration-button:active {
@@ -111,26 +74,27 @@
     }
 
     .duration-button.active {
-      background-color: #bfb7a8;
+      background-color: #a89f94;
       color: #fff;
       font-weight: bold;
     }
 
     #instructions {
       background-color: #f7f4ec;
-      border-radius: 10px;
-      padding: 20px;
+      border-radius: 16px;
+      padding: 25px;
       margin: 20px 0;
       text-align: left;
       max-width: 700px;
       width: 90%;
       box-sizing: border-box;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.05);
     }
 
     #timer {
-      font-size: 2em;
+      font-size: 2.5em;
       margin-top: 20px;
-      color: #7d766a;
+      color: #6b655c;
       font-family: monospace;
     }
 
@@ -146,36 +110,52 @@
       display: block;
       margin-top: 15px;
       font-size: 1.1em;
+      color: #4a463f;
     }
 
-    @media (max-width: 600px) {
-      #duration-buttons {
-        justify-content: center;
-      }
-      .duration-button {
-        width: 80%;
-      }
+    @keyframes breathe {
+      0% { transform: scale(1); opacity: 0.5; }
+      50% { transform: scale(1.2); opacity: 1; }
+      100% { transform: scale(1); opacity: 0.5; }
+    }
+
+    #preparation-overlay {
+      visibility: hidden;
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: rgba(253, 250, 242, 0.8);
+      z-index: 9999;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      animation: breathe 5s ease-in-out infinite;
+      opacity: 1;
+      transition: opacity 1s ease;
+    }
+
+    #preparation-overlay span {
+      font-size: 1.8em;
+      color: #6b655c;
+      padding: 20px;
     }
   </style>
   <script>
-    let audio;
-    let meditationTimer;
+    let selectedDuration = 5;
+    let audio = new Audio("audio/daily.mp3");
+    let meditationTimer = null;
     let repeatCount = 0;
     let maxRepeats = 4;
-    let timerInterval;
+    let calculatedRepeats = 0;
+    let timerInterval = null;
     let elapsedSeconds = 0;
-    let selectedDuration = 5;
+    const endSound = new Audio("https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg");
 
-    function handleFileUpload(event) {
-      const file = event.target.files[0];
-      if (file) {
-        const url = URL.createObjectURL(file);
-        audio = new Audio(url);
-        document.getElementById('file-name').textContent = `Učitano: ${file.name}`;
-      }
-    }
-
-    function selectDuration(minutes) {
+    function selectDuration(minutes, event) {
       selectedDuration = minutes;
       document.querySelectorAll('.duration-button').forEach(btn => btn.classList.remove('active'));
       event.target.classList.add('active');
@@ -183,7 +163,11 @@
 
     function startMeditation() {
       if (!audio) {
-        alert('Please upload an audio file first.');
+        alert("Audio nije dostupan.");
+        return;
+      }
+      if (isNaN(audio.duration)) {
+        alert("Audio se još učitava. Pričekaj trenutak i pokušaj ponovo.");
         return;
       }
 
@@ -191,21 +175,46 @@
       elapsedSeconds = 0;
       updateTimerDisplay();
       startTimer();
-      playAudioRepeatedly(selectedDuration);
+
+      const totalTimeMs = selectedDuration * 60 * 1000;
+      const audioDurationMs = audio.duration * 1000;
+      const maxAudioTime = totalTimeMs * 0.3;
+
+      calculatedRepeats = Math.min(Math.floor(maxAudioTime / audioDurationMs), maxRepeats);
+      if (calculatedRepeats < 1) calculatedRepeats = 1;
+
+      const overlay = document.getElementById('preparation-overlay');
+      overlay.style.display = 'flex';
+      overlay.style.visibility = 'visible';
+      overlay.style.opacity = '1';
+
+      setTimeout(() => {
+        playAudioRepeatedly();
+      }, 10000);
     }
 
-    function playAudioRepeatedly(duration) {
-      if (repeatCount >= maxRepeats) {
+    function playAudioRepeatedly() {
+      const overlay = document.getElementById('preparation-overlay');
+      overlay.style.opacity = '0';
+      setTimeout(() => overlay.style.display = 'none', 1000);
+
+      if (repeatCount >= calculatedRepeats) {
         stopTimer();
+        endSound.play();
         return;
       }
+
       audio.currentTime = 0;
       audio.play();
       audio.onended = () => {
         repeatCount++;
-        if (repeatCount < maxRepeats) {
-          const interval = (duration * 60 * 1000) / maxRepeats - audio.duration * 1000;
-          meditationTimer = setTimeout(() => playAudioRepeatedly(duration), interval);
+        if (repeatCount < calculatedRepeats) {
+          const totalTimeMs = selectedDuration * 60 * 1000;
+          const silenceTime = (totalTimeMs * 0.7) / calculatedRepeats;
+          meditationTimer = setTimeout(() => playAudioRepeatedly(), silenceTime);
+        } else {
+          stopTimer();
+          endSound.play();
         }
       };
     }
@@ -235,17 +244,10 @@
       const seconds = elapsedSeconds % 60;
       document.getElementById('timer').textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
     }
-
-    window.onload = function () {
-      const uploadBtn = document.querySelector('.file-upload-button');
-      const hiddenInput = document.querySelector('.file-upload-wrapper input[type="file"]');
-      uploadBtn.addEventListener('click', () => hiddenInput.click());
-    };
   </script>
 </head>
 <body>
   <h1>Lectio Divina Player</h1>
-
   <div id="instructions">
     <h2>Upute za Lectio Divinu</h2>
     <ol>
@@ -255,32 +257,26 @@
       <li><strong>Contemplatio (Kontemplacija)</strong>: Ostani u tišini u Božjoj prisutnosti.</li>
     </ol>
   </div>
-
-  <div class="file-upload-wrapper">
-    <button class="file-upload-button">Odaberi audio datoteku</button>
-    <input type="file" accept="audio/*" onchange="handleFileUpload(event)">
-    <div id="file-name"></div>
-  </div>
-
   <div>
     <label>Odaberi trajanje meditacije:</label>
     <div id="duration-buttons">
-      <button class="duration-button" onclick="selectDuration(5)">5 min</button>
-      <button class="duration-button" onclick="selectDuration(10)">10 min</button>
-      <button class="duration-button" onclick="selectDuration(15)">15 min</button>
-      <button class="duration-button" onclick="selectDuration(20)">20 min</button>
-      <button class="duration-button" onclick="selectDuration(25)">25 min</button>
-      <button class="duration-button" onclick="selectDuration(30)">30 min</button>
+      <button class="duration-button" onclick="selectDuration(5, event)">5 min</button>
+      <button class="duration-button" onclick="selectDuration(10, event)">10 min</button>
+      <button class="duration-button" onclick="selectDuration(15, event)">15 min</button>
+      <button class="duration-button" onclick="selectDuration(20, event)">20 min</button>
+      <button class="duration-button" onclick="selectDuration(25, event)">25 min</button>
+      <button class="duration-button" onclick="selectDuration(30, event)">30 min</button>
     </div>
   </div>
-
   <div>
     <button onclick="startMeditation()">Počni</button>
     <button onclick="stopMeditation()">Zaustavi</button>
   </div>
-
   <div>
     <h2>Vrijeme: <span id="timer">0:00</span></h2>
+  </div>
+  <div id="preparation-overlay">
+    <span>📿 Lectio Divina kreće za 10 sekundi...<br>Udahni polako... još jednom...</span>
   </div>
 </body>
 </html>
