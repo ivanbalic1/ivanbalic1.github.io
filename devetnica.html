@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Devetnica Gospi od Karmela</title>
+  <title>Trenutne devetnice</title>
   <style>
     body {
       font-family: sans-serif;
@@ -12,77 +12,73 @@
       max-width: 800px;
       margin: auto;
     }
-    .dan {
-      background-color: #f4f4f4;
+    h1 {
+      text-align: center;
+      margin-bottom: 1em;
+    }
+    .devetnica {
+      border-left: 5px solid #006400;
+      background-color: #f0f0f0;
       padding: 1em;
       margin-bottom: 1em;
-      border-left: 5px solid #8b0000;
     }
-    .brojevi {
-      display: flex;
-      gap: 0.5em;
-      margin-bottom: 1em;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-    .broj {
-      width: 30px;
-      height: 30px;
-      border-radius: 4px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background-color: #ddd;
-      cursor: default;
-    }
-    .broj.aktivni {
-      background-color: #8b0000;
-      color: white;
+    .naziv {
       font-weight: bold;
+      font-size: 1.2em;
     }
-    .tekst-devetnice {
-      white-space: pre-wrap;
+    .poveznica {
+      margin-top: 0.5em;
     }
   </style>
 </head>
 <body>
-  <h1>Devetnica Gospi od Karmela</h1>
-  <div id="trenutni-dan" class="dan"></div>
-
-  <div class="brojevi" id="brojevi"></div>
-
-  <div id="sadrzaj" class="tekst-devetnice"></div>
+  <h1>Devetnice u tijeku</h1>
+  <div id="devetnice"></div>
 
   <script>
-    const devetnicaTekst = `(ovdje umetni puni tekst cijele devetnice)`;
+    const devetnice = [
+      {
+        naziv: "Devetnica Gospi od Karmela",
+        pocetak: "2025-07-07",
+        kraj: "2025-07-15",
+        link: "devetnica-gospi-karmelskoj.html"
+      }
+      // Dodaj više devetnica ovdje po potrebi
+    ];
 
     const danas = new Date();
-    const pocetak = new Date(danas.getFullYear(), 6, 7); // 7. srpnja
-    const kraj = new Date(danas.getFullYear(), 6, 15); // 15. srpnja
+    const prikaz = document.getElementById("devetnice");
 
-    let poruka = "";
-    let aktivniDan = -1;
+    const aktivne = devetnice.filter(d => {
+      const start = new Date(d.pocetak);
+      const end = new Date(d.kraj);
+      return danas >= start && danas <= end;
+    });
 
-    if (danas < pocetak) {
-      poruka = "Devetnica još nije započela. Započinje 7. srpnja.";
-    } else if (danas > kraj) {
-      poruka = "Devetnica je završila. Slavimo blagdan Gospe Karmelske 16. srpnja.";
+    if (aktivne.length === 0) {
+      prikaz.innerHTML = "<p>Trenutno nema devetnica u tijeku.</p>";
     } else {
-      aktivniDan = Math.floor((danas - pocetak) / (1000 * 60 * 60 * 24));
-      poruka = `Danas je ${aktivniDan + 1}. dan devetnice.`;
+      aktivne.forEach(d => {
+        const div = document.createElement("div");
+        div.className = "devetnica";
+
+        const naziv = document.createElement("div");
+        naziv.className = "naziv";
+        naziv.innerText = d.naziv;
+
+        const raspon = document.createElement("div");
+        raspon.innerText = `Traje od ${new Date(d.pocetak).toLocaleDateString("hr-HR")} do ${new Date(d.kraj).toLocaleDateString("hr-HR")}`;
+
+        const link = document.createElement("div");
+        link.className = "poveznica";
+        link.innerHTML = `<a href="${d.link}">Otvori devetnicu</a>`;
+
+        div.appendChild(naziv);
+        div.appendChild(raspon);
+        div.appendChild(link);
+        prikaz.appendChild(div);
+      });
     }
-
-    document.getElementById("trenutni-dan").innerText = poruka;
-
-    const brojeviDiv = document.getElementById("brojevi");
-    for (let i = 0; i < 9; i++) {
-      const broj = document.createElement("div");
-      broj.className = "broj" + (i === aktivniDan ? " aktivni" : "");
-      broj.innerText = i + 1;
-      brojeviDiv.appendChild(broj);
-    }
-
-    document.getElementById("sadrzaj").innerText = devetnicaTekst;
   </script>
 </body>
 </html>
