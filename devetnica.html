@@ -1,84 +1,643 @@
-<!DOCTYPE html>
-<html lang="hr">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Trenutne devetnice</title>
-  <style>
-    body {
-      font-family: sans-serif;
-      line-height: 1.6;
-      padding: 1em;
-      max-width: 800px;
-      margin: auto;
-    }
-    h1 {
-      text-align: center;
-      margin-bottom: 1em;
-    }
-    .devetnica {
-      border-left: 5px solid #006400;
-      background-color: #f0f0f0;
-      padding: 1em;
-      margin-bottom: 1em;
-    }
-    .naziv {
-      font-weight: bold;
-      font-size: 1.2em;
-    }
-    .poveznica {
-      margin-top: 0.5em;
-    }
-  </style>
-</head>
-<body>
-  <h1>Devetnice u tijeku</h1>
-  <div id="devetnice"></div>
+import React, { useState, useEffect } from 'react';
+import { initializeApp } from 'firebase/app';
+import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from 'firebase/auth';
+import { getFirestore, doc, getDoc, setDoc, onSnapshot, collection, query, updateDoc } from 'firebase/firestore';
 
-  <script>
-    const devetnice = [
-      {
-        naziv: "Devetnica Gospi od Karmela",
-        pocetak: "2025-07-07",
-        kraj: "2025-07-15",
-        link: "https://ivanbalic1.github.io/gospi-karmelskoj"
+// Global variables provided by the Canvas environment
+const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-novena-app-id';
+const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+// Initialize Firebase outside of the component to avoid re-initialization
+let app, db, auth;
+if (Object.keys(firebaseConfig).length > 0) {
+  app = initializeApp(firebaseConfig);
+  db = getFirestore(app);
+  auth = getAuth(app);
+}
+
+// Data for novenas
+const novenasData = [
+  {
+    id: 'maryMagdalene',
+    name: 'Devetnica svetoj Mariji Magdaleni',
+    feastDay: '07-22', // Month-Day format
+    prayer: `
+      <p><b>Molitva</b></p>
+      <p>Učitelju čudesni, dođi u moj život i oslobodi me od svih okova koji stežu moju dušu. Pa neka me i potpuno nastoje obuzeti i zarobiti, ti si jači! Tebi ću pokloniti sve što jesam. Želim te pratiti, Gospodine, na tvojemu putu, pa neka onda govore o meni što hoće i neka gledaju u meni koga žele – samo da ti budeš svjetlo mojega svijeta!</p>
+      <p>Kada dođu mračni dani, kada koplje probada srce i znoj od tjeskobe poput krvi kaplje na zemlju, samo tvojom snagom i tvojom milošću ostat ću pred strašnim prizorom i neću pobjeći. Kada te svijet želi ukloniti, daj da ti budem blizu!</p>
+      <p>O, kako žudim za tim da moju dušu ispuniš svojom vjernošću. Tada ću ostati uz tebe i u smrti.</p>
+      <p>Gospodine, u radosti svojega Uskrsnog jutra dođi i pogledaj što nosim u duši! Rastrgni opnu koja priječi moj pogled, reci moje ime, pokaži da me poznaješ i znat ću da si ovdje, Učitelju moj!</p>
+
+      <p><b>Litanije svetoj Mariji Magdaleni</b></p>
+      <p>Gospodine, smiluj se!<br/>
+      Kriste, smiluj se!<br/>
+      Gospodine, smiluj se!<br/>
+      Kriste, čuj nas!<br/>
+      Kriste, usliši nas!<br/>
+      Oče nebeski, Bože, smiluj nam se!<br/>
+      Sine, Otkupitelju svijeta, Bože,<br/>
+      Duše Sveti, Bože,<br/>
+      Sveto Trojstvo, jedan Bože,<br/>
+      Sveta Marijo, moli za nas!<br/>
+      Sveta Marijo Magdaleno,<br/>
+      Koja si od sedam đavola oslobođena,<br/>
+      Koju je Gospodin od grijeha odriješio,<br/>
+      Koja si Isusu posluživala od svojih dobara,<br/>
+      Koja si Isusovu muku izdaleka pratila,<br/>
+      Koja si uz križ Isusov stajala,<br/>
+      Koja si Isusovoj smrti na križu svjedočila,<br/>
+      Koja si promatrala kamo polažu mrtvoga Isusa,<br/>
+      Koja si pripremila miomirise za Isusovo pomazanje u grobu,<br/>
+      Koja si došla na Isusov grob da ga pomažeš,<br/>
+      Koja si opazila da je kamen s Isusova groba dignut,<br/>
+      Koju si, zaplakana, zavirila u grob,<br/>
+      Koju je anđeo upitao: „Ženo, što plačeš?“,<br/>
+      Kojoj je anđeo objavio Isusovo uskrsnuće,<br/>
+      Kojoj se uskrsnuli Isus prvoj objavio,<br/>
+      Koja si uskrsnuloga Isusa prepoznala i rekla mu: „Učitelju!”<br/>
+      Kojoj je uskrsnuli Isus prvoj objavio svoj uzlazak Bogu Ocu,<br/>
+      Koja si Isusovim apostolima objavila njegovo uskrsnuće,<br/>
+      Koja si s apostolima uskrsnuloga Krista u molitvi čekala, moli za nas!<br/>
+      Jaganjče Božji, koji oduzimaš grijehe svijeta, oprosti nam, Gospodine!<br/>
+      Jaganjče Božji, koji oduzimaš grijehe svijeta, usliši nas, Gospodine!<br/>
+      Jaganjče Božji, koji oduzimaš grihe svijeta, smiluj nam se, Gospodine!<br/>
+      – Uzeše Gospodina iz groba<br/>
+      – i ne znam gdje ga staviše.<br/>
+      Pomolimo se: Bože, sveta Marija Magdalena vidjela je uskrsnuloga Spasitelja i prva javila učenicima radost uskrsnuća. Daj i nama da po njezinu primjeru i zagovoru svjedočimo da je Krist živ te da ga jednom ugledamo kao Kralja vječne slave. Po Gospodinu našemu Isusu Kristu, Sinu tvome, koji s tobom živi i kraljuje u jedinstvu Duha Svetoga, Bog, po sve vijeke vjekova. Amen.</p>
+
+      <p><b>Molitva svetoj Mariji Magdaleni</b></p>
+      <p>Sveta Marijo Magdaleno, po svojoj velikoj i bezgraničnoj ljubavi prema Gospodinu Isusu Kristu, Sinu Božjemu, i po njegovoj velikoj muci i slavnome uskrsnuću, kojemu si svjedočila, neprestano moli i zagovaraj potrebe nas grešnika kod istoga Gospodina Isusa Krista, koji živi i kraljuje u vijeke vjekova. Amen.</p>
+    `,
+  },
+  {
+    id: 'svAntun',
+    name: 'Devetnica sv. Antunu Padovanskom',
+    feastDay: '06-13', // June 13th
+    prayer: `<p>Molitva sv. Antunu...</p><p>Bože, Oče, ti si svetom Antunu darovao moć da čini čudesa. Po njemu slavimo tvoju veličinu. Udijeli nam milost da po njegovu zagovoru doživimo tvoju pomoć. Po Kristu Gospodinu našemu. Amen.</p>`
+  },
+  {
+    id: 'blMarija',
+    name: 'Devetnica Bezgrešnoj Djevici Mariji',
+    feastDay: '12-08', // December 8th
+    prayer: `<p>Molitva Bezgrešnoj Djevici Mariji...</p><p>Bezgrešna Djevice Marijo, ti si puna milosti, moli za nas koji se k tebi utječemo. Amen.</p>`
+  },
+  {
+    id: 'svJosip',
+    name: 'Devetnica sv. Josipu',
+    feastDay: '03-19', // March 19th
+    prayer: `<p>Molitva sv. Josipu...</p><p>Sveti Josipe, čuvaru obitelji, moli za nas. Amen.</p>`
+  },
+  {
+    id: 'svIvanKrstitelj',
+    name: 'Devetnica sv. Ivanu Krstitelju',
+    feastDay: '06-24', // June 24th
+    prayer: `<p>Molitva sv. Ivanu Krstitelju...</p><p>Sveti Ivane Krstitelju, pretečo Kristov, moli za nas. Amen.</p>`
+  }
+];
+
+// Helper function to calculate novena start date from feast day
+const calculateNovenaStartDate = (feastDay, year) => {
+  const [month, day] = feastDay.split('-').map(Number);
+  const date = new Date(year, month - 1, day);
+  date.setDate(date.getDate() - 9); // Novena is 9 days, so starts 9 days before feast day (feast day - 1 is 9th day)
+  return date;
+};
+
+// Helper function to format date as DD.MM.YYYY
+const formatDate = (date) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${day}.${month}.${year}`;
+};
+
+// Helper function to format feast day as DD.MM.
+const formatFeastDay = (mmddString) => {
+  const [month, day] = mmddString.split('-');
+  return `${day}.${month}.`;
+};
+
+// Helper function to get today's date without time
+const getToday = () => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return today;
+};
+
+// NovenaList Component (now more general for different sections)
+const NovenaSection = ({ title, novenas, onSelectNovena, type, userId }) => {
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const filteredNovenas = type === 'all' ? novenas.filter(novena =>
+    novena.name.toLowerCase().includes(searchTerm.toLowerCase())
+  ) : novenas;
+
+  const getIcon = (sectionType) => {
+    switch (sectionType) {
+      case 'officialOngoing':
+        return <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2 text-teal-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>;
+      case 'userOngoing':
+        return <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" /></svg>;
+      case 'upcoming':
+        return <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h.01M12 11h.01M15 11h.01M7 16h.01M12 16h.01M15 16h.01M4 20h16a2 2 0 002-2V6a2 2 0 00-2-2H4a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>;
+      case 'all':
+        return <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 10h16M4 14h16M4 18h16" /></svg>;
+      default:
+        return null;
+    }
+  };
+
+  const getBorderColor = (sectionType) => {
+    switch (sectionType) {
+      case 'officialOngoing': return 'border-teal-200';
+      case 'userOngoing': return 'border-blue-200';
+      case 'upcoming': return 'border-purple-200';
+      case 'all': return 'border-green-200';
+      default: return 'border-gray-200';
+    }
+  };
+
+  const getTextColor = (sectionType) => {
+    switch (sectionType) {
+      case 'officialOngoing': return 'text-teal-700';
+      case 'userOngoing': return 'text-blue-700';
+      case 'upcoming': return 'text-purple-700';
+      case 'all': return 'text-green-700';
+      default: return 'text-gray-700';
+    }
+  };
+
+  const getBgColor = (sectionType) => {
+    switch (sectionType) {
+      case 'officialOngoing': return 'bg-teal-50';
+      case 'userOngoing': return 'bg-blue-50';
+      case 'upcoming': return 'bg-purple-50';
+      case 'all': return 'bg-green-50';
+      default: return 'bg-gray-50';
+    }
+  };
+
+  return (
+    <div className={`p-6 bg-white rounded-xl shadow-xl ${getBorderColor(type)} mb-10 transition-all duration-300 ease-in-out transform`}>
+      <h2 className={`text-2xl font-bold ${getTextColor(type)} mb-4 flex items-center`}>
+        {getIcon(type)}
+        {title}
+      </h2>
+      {type === 'all' && (
+        <input
+          type="text"
+          placeholder="Pretraži devetnice..."
+          className="w-full p-3 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 transition-all duration-200"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+      )}
+      {novenas.length > 0 ? (
+        <ul className={`space-y-3 ${type === 'all' ? 'max-h-60 overflow-y-auto custom-scrollbar' : ''}`}>
+          {filteredNovenas.map(novena => (
+            <li key={novena.id} className={`${getBgColor(type)} p-4 rounded-lg shadow-md hover:${getBgColor(type).replace('50', '100')} transition duration-300 transform hover:scale-105 cursor-pointer border ${getBorderColor(type).replace('200', '100')}`} onClick={() => onSelectNovena(novena.id)}>
+              <h3 className={`text-xl font-semibold ${getTextColor(type).replace('700', '800')}`}>{novena.name}</h3>
+              {novena.currentDay && <p className="text-sm text-gray-600">Dan: <span className={`font-medium ${getTextColor(type).replace('700', '600')}`}>{novena.currentDay} / 9</span></p>}
+              {novena.userStartDate && <p className="text-sm text-gray-600">Pokrenuto: <span className={`font-medium ${getTextColor(type).replace('700', '600')}`}>{novena.userStartDate}</span></p>}
+              {novena.calculatedStartDate && <p className="text-sm text-gray-600">Počinje: <span className={`font-medium ${getTextColor(type).replace('700', '600')}`}>{formatDate(novena.calculatedStartDate)}</span></p>}
+              {novena.feastDay && <p className="text-sm text-gray-600">Spomendan: <span className={`font-medium ${getTextColor(type).replace('700', '600')}`}>{formatFeastDay(novena.feastDay)}</span></p>}
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="text-gray-600 italic">
+          {type === 'officialOngoing' ? 'Trenutno nema službenih devetnica u tijeku.' :
+           type === 'userOngoing' ? 'Niste pokrenuli nijednu devetnicu.' :
+           type === 'upcoming' ? 'Nema nadolazećih devetnica u sljedećih 30 dana.' :
+           'Nema pronađenih devetnica.'}
+        </p>
+      )}
+      {type === 'userOngoing' && (
+        <div className="text-center text-sm text-gray-600 mt-6 p-2 bg-white rounded-lg shadow-sm">
+          <p>Vaš ID korisnika: <span className="font-mono text-blue-700">{userId}</span></p>
+        </div>
+      )}
+    </div>
+  );
+};
+
+
+// NovenaDetail Component
+const NovenaDetail = ({ novena, onBack, userId, userNovenas, onStartNovena, onMarkDayPrayed }) => {
+  if (!novena) {
+    return (
+      <div className="p-6 text-center text-gray-700">
+        <p>Devetnica nije pronađena.</p>
+        <button
+          onClick={onBack}
+          className="mt-4 px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition duration-300"
+        >
+          Natrag na popis
+        </button>
+      </div>
+    );
+  }
+
+  const userNovenaInstance = userNovenas.find(un => un.novenaId === novena.id);
+  let currentDayForUserInstance = null;
+  let userStartDateDisplay = null;
+  let prayedDaysStatus = Array(9).fill(false); // Default to all false
+
+  if (userNovenaInstance) {
+    const start = new Date(userNovenaInstance.startDate.split('.').reverse().join('-')); // Convert DD.MM.YYYY to YYYY-MM-DD
+    start.setHours(0, 0, 0, 0);
+    const today = getToday();
+    const diffTime = today.getTime() - start.getTime();
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    currentDayForUserInstance = diffDays + 1;
+    userStartDateDisplay = userNovenaInstance.startDate;
+    prayedDaysStatus = userNovenaInstance.prayedDays || Array(9).fill(false);
+  }
+
+  // Calculate official ongoing day based on feast day
+  const today = getToday();
+  const currentYear = today.getFullYear();
+  const officialStartDate = calculateNovenaStartDate(novena.feastDay, currentYear);
+  officialStartDate.setHours(0, 0, 0, 0);
+  const feastDate = new Date(currentYear, novena.feastDay.split('-')[0] - 1, novena.feastDay.split('-')[1]);
+  feastDate.setHours(0, 0, 0, 0);
+
+  const officialEndDate = new Date(feastDate);
+  officialEndDate.setDate(officialEndDate.getDate() - 1);
+  officialEndDate.setHours(0, 0, 0, 0);
+
+  let officialOngoingDay = null;
+  if (today >= officialStartDate && today <= officialEndDate) {
+    const diffTime = today.getTime() - officialStartDate.getTime();
+    officialOngoingDay = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
+  }
+
+  const handleMarkDay = async (dayIndex) => {
+    if (!userNovenaInstance) return; // Can only mark if user has started this novena
+
+    const newPrayedDays = [...prayedDaysStatus];
+    newPrayedDays[dayIndex - 1] = !newPrayedDays[dayIndex - 1]; // Toggle status
+
+    await onMarkDayPrayed(userNovenaInstance.id, newPrayedDays);
+  };
+
+  return (
+    <div className="p-6 bg-gradient-to-br from-blue-100 to-purple-100 min-h-screen font-inter text-gray-800 rounded-lg shadow-lg">
+      <button
+        onClick={onBack}
+        className="mb-6 px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition duration-300 flex items-center"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+        Natrag
+      </button>
+
+      <h1 className="text-4xl font-extrabold text-center text-blue-800 mb-8 drop-shadow-md">{novena.name}</h1>
+
+      <div className="bg-white p-6 rounded-xl shadow-xl border border-blue-200 mb-6">
+        <p className="text-lg mb-2"><span className="font-semibold text-blue-700">Spomendan:</span> {formatFeastDay(novena.feastDay)}</p>
+
+        {officialOngoingDay && (
+          <p className="text-2xl font-bold text-teal-700 mb-4">
+            Službeni dan: {officialOngoingDay} / 9
+          </p>
+        )}
+
+        {userNovenaInstance && (
+          <>
+            <p className="text-lg mb-2"><span className="font-semibold text-blue-700">Vi ste pokrenuli:</span> {userStartDateDisplay}</p>
+            {currentDayForUserInstance >= 1 && currentDayForUserInstance <= 9 && (
+              <p className="text-2xl font-bold text-purple-700 mb-4">
+                Vaš dan: {currentDayForUserInstance} / 9
+              </p>
+            )}
+            {currentDayForUserInstance > 9 && (
+              <p className="text-md font-bold text-gray-500 mb-4">
+                Vaša devetnica je završila.
+              </p>
+            )}
+
+            <div className="mt-6">
+              <h3 className="text-xl font-semibold text-gray-700 mb-3">Status molitve:</h3>
+              <div className="grid grid-cols-3 gap-2">
+                {Array.from({ length: 9 }, (_, i) => i + 1).map(day => (
+                  <button
+                    key={day}
+                    onClick={() => handleMarkDay(day)}
+                    disabled={!userNovenaInstance || day > currentDayForUserInstance}
+                    className={`p-3 rounded-lg shadow-md transition duration-200
+                      ${prayedDaysStatus[day - 1] ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}
+                      ${day > currentDayForUserInstance ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105 transform'}
+                    `}
+                  >
+                    Dan {day} {prayedDaysStatus[day - 1] && '✓'}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </>
+        )}
+        <button
+          onClick={() => onStartNovena(novena.id)}
+          className="w-full px-6 py-3 bg-green-600 text-white font-bold text-lg rounded-lg shadow-lg hover:bg-green-700 transition duration-300 transform hover:scale-105 mt-4"
+        >
+          {userNovenaInstance ? 'Ponovno pokreni devetnicu (od danas)' : 'Pokreni devetnicu'}
+        </button>
+      </div>
+
+      <div className="bg-white p-6 rounded-xl shadow-xl border border-purple-200 prose max-w-none" dangerouslySetInnerHTML={{ __html: novena.prayer }}>
+      </div>
+    </div>
+  );
+};
+
+// Bottom Navigation Bar Component
+const BottomNavBar = ({ activeTab, onTabChange }) => {
+  const tabs = [
+    { id: 'home', name: 'Početna', icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg> },
+    { id: 'upcoming', name: 'Nadolazeće', icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h.01M12 11h.01M15 11h.01M7 16h.01M12 16h.01M15 16h.01M4 20h16a2 2 0 002-2V6a2 2 0 00-2-2H4a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg> },
+    { id: 'all', name: 'Sve', icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 10h16M4 14h16M4 18h16" /></svg> },
+  ];
+
+  return (
+    <div className="fixed bottom-0 left-0 right-0 bg-white shadow-lg border-t border-gray-200 z-50">
+      <div className="flex justify-around items-center h-16">
+        {tabs.map(tab => (
+          <button
+            key={tab.id}
+            onClick={() => onTabChange(tab.id)}
+            className={`flex flex-col items-center justify-center p-2 rounded-lg transition duration-200
+              ${activeTab === tab.id ? 'text-blue-600 font-bold' : 'text-gray-500 hover:text-blue-400'}
+            `}
+          >
+            {tab.icon}
+            <span className="text-xs mt-1">{tab.name}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+
+// Main App Component
+function App() {
+  const [view, setView] = useState('list'); // 'list' or 'detail'
+  const [selectedNovenaId, setSelectedNovenaId] = useState(null);
+  const [userId, setUserId] = useState(null);
+  const [userNovenas, setUserNovenas] = useState([]); // Array of { novenaId, startDate, prayedDays }
+  const [isAuthReady, setIsAuthReady] = useState(false);
+  const [activeTab, setActiveTab] = useState('home'); // 'home', 'upcoming', 'all'
+
+  useEffect(() => {
+    if (!auth || !db) {
+      console.error("Firebase is not initialized. Check firebaseConfig.");
+      return;
+    }
+
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        setUserId(user.uid);
+      } else {
+        try {
+          if (initialAuthToken) {
+            await signInWithCustomToken(auth, initialAuthToken);
+          } else {
+            await signInAnonymously(auth);
+          }
+        } catch (error) {
+          console.error("Error signing in:", error);
+          setUserId(crypto.randomUUID()); // Fallback to a random ID if auth fails
+        }
       }
-      // Dodaj više devetnica ovdje po potrebi
-    ];
-
-    const danas = new Date();
-    const prikaz = document.getElementById("devetnice");
-
-    const aktivne = devetnice.filter(d => {
-      const start = new Date(d.pocetak);
-      const end = new Date(d.kraj);
-      return danas >= start && danas <= end;
+      setIsAuthReady(true);
     });
 
-    if (aktivne.length === 0) {
-      prikaz.innerHTML = "<p>Trenutno nema devetnica u tijeku.</p>";
-    } else {
-      aktivne.forEach(d => {
-        const div = document.createElement("div");
-        div.className = "devetnica";
+    return () => unsubscribe();
+  }, []); // Run once on component mount
 
-        const naziv = document.createElement("div");
-        naziv.className = "naziv";
-        naziv.innerText = d.naziv;
-
-        const raspon = document.createElement("div");
-        raspon.innerText = `Traje od ${new Date(d.pocetak).toLocaleDateString("hr-HR")} do ${new Date(d.kraj).toLocaleDateString("hr-HR")}`;
-
-        const link = document.createElement("div");
-        link.className = "poveznica";
-        link.innerHTML = `<a href="${d.link}">Otvori devetnicu</a>`;
-
-        div.appendChild(naziv);
-        div.appendChild(raspon);
-        div.appendChild(link);
-        prikaz.appendChild(div);
-      });
+  useEffect(() => {
+    if (!isAuthReady || !userId) {
+      return;
     }
-  </script>
-</body>
-</html>
+
+    // Listen for real-time updates to user's novenas
+    const userNovenasCollectionRef = collection(db, `artifacts/${appId}/users/${userId}/userNovenas`);
+    const unsubscribe = onSnapshot(userNovenasCollectionRef, (snapshot) => {
+      const novenas = snapshot.docs.map(doc => ({
+        id: doc.id, // Firestore document ID
+        ...doc.data()
+      }));
+      setUserNovenas(novenas);
+    }, (error) => {
+      console.error("Error fetching user novenas:", error);
+    });
+
+    return () => unsubscribe(); // Clean up the listener
+  }, [isAuthReady, userId]); // Re-run if auth state or userId changes
+
+  const handleSelectNovena = (id) => {
+    setSelectedNovenaId(id);
+    setView('detail');
+  };
+
+  const handleBackToList = () => {
+    setSelectedNovenaId(null);
+    setView('list');
+  };
+
+  const handleStartNovena = async (novenaId) => {
+    if (!userId) {
+      console.error("User not authenticated or ID not available.");
+      return;
+    }
+
+    const novenaRef = doc(db, `artifacts/${appId}/users/${userId}/userNovenas`, novenaId);
+    const today = getToday();
+    const todayFormatted = formatDate(today); // Use DD.MM.YYYY format for storing
+
+    try {
+      const docSnap = await getDoc(novenaRef);
+      if (docSnap.exists()) {
+        // Update existing novena instance
+        await updateDoc(novenaRef, {
+          startDate: todayFormatted,
+          lastUpdated: new Date().toISOString(),
+          prayedDays: Array(9).fill(false), // Reset prayed days on restart
+        });
+        console.log("Novena updated successfully!");
+      } else {
+        // Add new novena instance
+        await setDoc(novenaRef, {
+          novenaId: novenaId,
+          startDate: todayFormatted,
+          createdAt: new Date().toISOString(),
+          prayedDays: Array(9).fill(false), // Initialize with 9 false values
+        });
+        console.log("Novena started successfully!");
+      }
+    } catch (e) {
+      console.error("Error starting/updating novena: ", e);
+    }
+  };
+
+  const handleMarkDayPrayed = async (userNovenaDocId, newPrayedDays) => {
+    if (!userId) {
+      console.error("User not authenticated or ID not available.");
+      return;
+    }
+    const novenaRef = doc(db, `artifacts/${appId}/users/${userId}/userNovenas`, userNovenaDocId);
+    try {
+      await updateDoc(novenaRef, {
+        prayedDays: newPrayedDays,
+        lastUpdated: new Date().toISOString(),
+      });
+      console.log("Prayed day status updated successfully!");
+    } catch (e) {
+      console.error("Error updating prayed day status: ", e);
+    }
+  };
+
+
+  // Filter novenas for display on the list screen
+  const today = getToday();
+  const currentYear = today.getFullYear();
+  const next30Days = new Date(today);
+  next30Days.setDate(today.getDate() + 30);
+  next30Days.setHours(0,0,0,0); // Ensure no time component
+
+  // Calculate official ongoing novenas (based on feast day)
+  const officialOngoingNovenas = novenasData.filter(novena => {
+    const calculatedStartDate = calculateNovenaStartDate(novena.feastDay, currentYear);
+    const feastDate = new Date(currentYear, novena.feastDay.split('-')[0] - 1, novena.feastDay.split('-')[1]);
+    feastDate.setHours(0,0,0,0);
+
+    // The 9th day of the novena is the day before the feast day
+    const officialEndDate = new Date(feastDate);
+    officialEndDate.setDate(officialEndDate.getDate() - 1);
+    officialEndDate.setHours(0, 0, 0, 0);
+
+    if (today >= calculatedStartDate && today <= officialEndDate) {
+      const diffTime = today.getTime() - calculatedStartDate.getTime();
+      const currentDay = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
+      return currentDay >= 1 && currentDay <= 9;
+    }
+    return false;
+  }).map(novena => {
+      const calculatedStartDate = calculateNovenaStartDate(novena.feastDay, currentYear);
+      const diffTime = today.getTime() - calculatedStartDate.getTime();
+      const currentDay = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
+      return { ...novena, currentDay: currentDay };
+  }).sort((a,b) => a.currentDay - b.currentDay);
+
+
+  // Calculate user's manually started ongoing novenas
+  const userOngoingNovenasDisplay = userNovenas.filter(userNovena => {
+    const start = new Date(userNovena.startDate.split('.').reverse().join('-')); // Convert DD.MM.YYYY to YYYY-MM-DD
+    start.setHours(0,0,0,0);
+    const diffTime = today.getTime() - start.getTime();
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    const currentDay = diffDays + 1;
+    return currentDay >= 1 && currentDay <= 9;
+  }).map(userNovena => {
+    const novenaDef = novenasData.find(n => n.id === userNovena.novenaId);
+    const start = new Date(userNovena.startDate.split('.').reverse().join('-'));
+    start.setHours(0,0,0,0);
+    const diffTime = today.getTime() - start.getTime();
+    const currentDay = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
+    return {
+      ...novenaDef,
+      id: userNovena.id, // Use firestore document ID
+      userStartDate: userNovena.startDate,
+      currentDay: currentDay,
+      prayedDays: userNovena.prayedDays || Array(9).fill(false) // Pass prayedDays status
+    };
+  });
+
+
+  const upcomingNovenasDisplay = novenasData.filter(novena => {
+    let calculatedStartDate = calculateNovenaStartDate(novena.feastDay, currentYear);
+    // If the novena starts before today in the current year, check next year
+    if (calculatedStartDate < today) {
+      calculatedStartDate = calculateNovenaStartDate(novena.feastDay, currentYear + 1);
+    }
+    // Only include if it starts within the next 30 days and is not before today
+    return calculatedStartDate >= today && calculatedStartDate <= next30Days;
+  }).map(novena => ({
+    ...novena,
+    calculatedStartDate: calculateNovenaStartDate(novena.feastDay, calculatedStartDate.getFullYear()) // Ensure correct year for display
+  })).sort((a, b) => a.calculatedStartDate - b.calculatedStartDate);
+
+
+  const currentNovena = novenasData.find(n => n.id === selectedNovenaId);
+
+  // Render loading state if auth is not ready
+  if (!isAuthReady) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-100">
+        <div className="text-center text-xl font-semibold text-gray-700">Učitavanje...</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      <div className="flex-grow pb-16"> {/* Add padding-bottom for the fixed nav bar */}
+        {view === 'list' ? (
+          <div className="p-6 bg-gradient-to-br from-blue-100 to-purple-100 min-h-screen font-inter text-gray-800 rounded-lg shadow-lg">
+            <h1 className="text-4xl font-extrabold text-center text-blue-800 mb-8 drop-shadow-md">Devetnice</h1>
+            {activeTab === 'home' && (
+              <>
+                <NovenaSection
+                  title="Službene devetnice u tijeku"
+                  novenas={officialOngoingNovenas}
+                  onSelectNovena={handleSelectNovena}
+                  type="officialOngoing"
+                />
+                <NovenaSection
+                  title="Moje pokrenute devetnice"
+                  novenas={userOngoingNovenasDisplay}
+                  onSelectNovena={handleSelectNovena}
+                  type="userOngoing"
+                  userId={userId}
+                />
+              </>
+            )}
+            {activeTab === 'upcoming' && (
+              <NovenaSection
+                title="Devetnice sljedećih trideset dana"
+                novenas={upcomingNovenasDisplay}
+                onSelectNovena={handleSelectNovena}
+                type="upcoming"
+              />
+            )}
+            {activeTab === 'all' && (
+              <NovenaSection
+                title="Sve devetnice"
+                novenas={novenasData} // Pass all novenas for search
+                onSelectNovena={handleSelectNovena}
+                type="all"
+              />
+            )}
+          </div>
+        ) : (
+          <NovenaDetail
+            novena={currentNovena}
+            onBack={handleBackToList}
+            userId={userId}
+            userNovenas={userNovenas}
+            onStartNovena={handleStartNovena}
+            onMarkDayPrayed={handleMarkDayPrayed}
+          />
+        )}
+      </div>
+      {view === 'list' && ( // Only show nav bar on list view
+        <BottomNavBar activeTab={activeTab} onTabChange={setActiveTab} />
+      )}
+    </div>
+  );
+}
+
+export default App;
