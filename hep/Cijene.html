@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="favicon.png" type="image/x-icon">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <title>Cijene električne energije</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+     /*  background: hsla(218, 100%, 95%, 1);
+
+background: linear-gradient(360deg, hsla(218, 100%, 95%, 1) 0%, hsla(186, 100%, 69%, 1) 100%);
+
+background: -moz-linear-gradient(360deg, hsla(218, 100%, 95%, 1) 0%, hsla(186, 100%, 69%, 1) 100%);
+
+background: -webkit-linear-gradient(360deg, hsla(218, 100%, 95%, 1) 0%, hsla(186, 100%, 69%, 1) 100%);
+
+filter: progid: DXImageTransform.Microsoft.gradient( startColorstr="#E6EFFF", endColorstr="#60efff", GradientType=1 ); */
+      background-color: #fcfcf9;
+      color: #585858;
+      margin: 0;
+      padding-top: 70px;
+    }
+    nav {
+      background: linear-gradient(90deg, #2c3e50, #3498db);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1rem;
+      padding: 1rem 2rem;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 1000;
+    }
+    nav a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      transition: background-color 0.3s ease;
+    }
+    nav a:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+    #Cijene {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+    .container {
+      max-width: 800px;
+      margin: auto;
+      padding: 2rem;
+    }
+    h3, h4, h5 {
+      margin-top: 1.5rem;
+    }
+    b {
+      color: #000;
+    }
+
+    hr {
+      border: 0.1px solid #d3d3d3;
+    }
+    
+    .tarife {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1rem;
+      flex-wrap: wrap;
+    }
+    .tarifa-bijeli, .tarifa-plavi {
+      background-color: #d3d3d3;
+      padding: 0.5rem;
+      border-radius: 6px;
+      flex: 1 1 250px;
+    }
+
+    .tarifa-plavi {
+      border: 0.8px solid #0467fc59;
+      background-color: #007bab17;
+    }
+
+    .tarifa-bijeli {
+      border: 0.8px solid #d6d6d6;
+      background-color: white;
+    }
+    /*
+    .tarifa-bijeli:hover, .tarifa-plavi:hover {
+      box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
+      transition: 0.3s;
+    } */
+    .vrijeme-blok {
+      display: flex;
+      gap: 2rem;
+      margin-top: 1rem;
+      flex-wrap: wrap;
+    }
+    .vrijeme-blok div {
+      background-color: #f2f2f2;
+      padding: 0.5rem;
+      border: 0.5px solid #f1f1ed;
+      border-radius: 6px;
+      flex: 1 1 300px;
+      }
+      /*
+    .vrijeme-blok div:hover {
+      box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
+      transition: 0.3s;
+    } */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+    table, th, td {
+      border: 1px solid #f1f1ed;
+    }
+    th, td {
+      padding: 0.75rem;
+      text-align: left;
+      background-color: #f6fdff;
+    }
+    th {
+      background-color: #ffcc00;
+    }
+    .sidebar-toggle {
+      position: fixed;
+      top: 50%;
+      right: 0;
+      transform: translateY(-50%);
+      width: 40px;
+      height: 40px;
+      background-color: rgba(52, 152, 219, 0.8);
+      color: white;
+      font-size: 24px;
+      border: none;
+      border-radius: 8px 0 0 8px;
+      cursor: pointer;
+      z-index: 1001;
+      transition: background-color 0.3s ease;
+      backdrop-filter: blur(4px);
+    }
+    .sidebar-toggle:hover {
+      background-color: rgba(93, 173, 226, 1);
+    }
+    .sidebar {
+      position: fixed;
+      top: 50%;
+      right: 8px;
+      transform: translateY(-50%) translateX(100%);
+      width: 180px;
+      background-color: #fff;
+      border-left: 1px solid #ccc;
+      padding: 0.5rem;
+      box-shadow: -2px 0 5px rgba(0, 0, 0, 0.05);
+      z-index: 999;
+      border-radius: 6px 0 0 6px;
+      transition: transform 0.3s ease;
+    }
+    .sidebar.open {
+      transform: translateY(-50%) translateX(0);
+    }
+    .sidebar a {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+      color: #007aab;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 0.9rem;
+      padding: 0.3rem;
+      border-radius: 4px;
+      transition: background-color 0.3s ease;
+    }
+    .sidebar a:hover {
+      background-color: #f0f8ff;
+    }
+    .material-icons {
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="Početna.html" id="Početna">Početna</a>
+    <a href="MNO Kalkulator.html" id="mno" >MNO Kalkulator</a>
+    <a href="HEP Kalkulator.html" id="hepkalkulator">HEP Kalkulator</a>
+    <a href="ProvjeraObračuna.html" id="Provjera">Provjera obračuna</a>
+    <a href="Cijene.html" id="Cijene">Cijene</a>
+    <a href="Email predlošci.html">Predlošci</a>
+  </nav>
+
+  <button class="sidebar-toggle" onclick="toggleSidebar()">
+    <span class="material-icons">menu</span>
+  </button>
+  <div class="sidebar" id="sidebar">
+    <a href="https://szg01ccappel01.data.centar/live20/#" target="_blank">
+      <span class="material-icons">bolt</span> Live 2.0
+    </a>
+    <a href="http://sos01crp01.data.centar:8001/crm(bD1ociZjPTU2MCZkPW1pbg==)/default.htm?sap-client=560&sap-language=HR" target="_blank">
+      <span class="material-icons">settings</span> SAP CRM
+    </a>
+    <a href="https://elektra-prijepisi.hep.hr/admin/default.aspx" target="_blank">
+      <span class="material-icons">description</span> Prijepisi
+    </a>
+  </div>
+
+  <div class="container">
+    <div class="cijene">
+      <h3>Cijene električne energije i usluga</h3>
+
+      <div class="tarife">
+        <div class="tarifa-plavi">
+          <h4 id="plavi">Plavi</h4><hr>
+          <p>JT: <b>0,156767</b> EUR/kWh</p>
+        </div>
+        <div class="tarifa-bijeli">
+          <h4>Bijeli</h4><hr>
+          <p>VT: <b>0,175968</b> EUR/kWh</p>
+          <p>NT: <b>0,090374</b> EUR/kWh</p>
+        </div>
+      </div>
+
+      <div class="vrijeme">
+        <h4><span class="material-icons">schedule</span> Vremenski okviri</h4>
+        <div class="vrijeme-blok">
+          <div>
+            <h5><span class="material-icons">ac_unit</span> Zimsko računanje</h5>
+            <p><b>VT:</b> 07–21 h <span class="material-icons">sunny</span></p>
+            <p><b>NT:</b> 21–07 h <span class="material-icons">dark_mode</span></p>
+          </div>
+          <div>
+            <h5><span class="material-icons">beach_access</span> Ljetno računanje</h5>
+            <p><b>VT:</b> 08–22 h <span class="material-icons">sunny</span></p>
+            <p><b>NT:</b> 22–08 h <span class="material-icons">dark_mode</span></p>
+          </div>
+        </div>
+      </div>
+
+    <h3>NESTANDARDNE USLUGE</h3>
+      <table>
+        <tr>
+          <th>Usluga</th>
+          <th>Cijena</th>
+        </tr>
+        <tr>
+          <td><span class="material-icons">power_off</span> Privremena obustava el. energije</td>
+          <td><b>15,93 EUR</b></td>
+        </tr>
+        <tr>
+          <td><span class="material-icons">power</span> Ponovna uspostava el. energije</td>
+          <td><b>14,60 EUR</b></td>
+        </tr>
+        <tr>
+          <td><span class="material-icons">priority_high</span> Ponovna uspostava el. energije (žurna)</td>
+          <td><b>21,24 EUR</b></td>
+        </tr>
+        <tr>
+          <td><span class="material-icons">cancel</span> Odustajanje od isključenja</td>>
+          <td><b>7,96 EUR</b></td>
+        </tr>
+      </table>
+    
+  
+
+  <script>
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      sidebar.classList.toggle('open');
+    }
+  </script>
+</body>
+</html>
