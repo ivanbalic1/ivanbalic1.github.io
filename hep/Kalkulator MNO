@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="favicon.png" type="image/x-icon">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <title>MNO Kalkulator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+     /* background: hsla(218, 100%, 95%, 1);
+
+background: linear-gradient(360deg, hsla(218, 100%, 95%, 1) 0%, hsla(186, 100%, 69%, 1) 100%);
+
+background: -moz-linear-gradient(360deg, hsla(218, 100%, 95%, 1) 0%, hsla(186, 100%, 69%, 1) 100%);
+
+background: -webkit-linear-gradient(360deg, hsla(218, 100%, 95%, 1) 0%, hsla(186, 100%, 69%, 1) 100%);
+
+filter: progid: DXImageTransform.Microsoft.gradient( startColorstr="#E6EFFF", endColorstr="#60efff", GradientType=1 ); */
+      background-color: #fcfcf9;
+      color: #585858;
+      margin: 0;
+      padding-top: 70px;
+    }
+    nav {
+      background: linear-gradient(90deg, #2c3e50, #3498db);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1rem;
+      padding: 1rem 2rem;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 1000;
+    }
+    nav a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      transition: background-color 0.3s ease;
+    }
+    nav a:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+    #mno {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+    .container {
+      max-width: 600px;
+      margin: auto;
+      padding: 2rem;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+    label {
+      font-weight: bold;
+    }
+    input[type="number"] {
+      width: 100%;
+      padding: 0.75rem;
+      margin-top: 0.25rem;
+      margin-bottom: 1rem;
+      box-sizing: border-box;
+      border: none;
+      border-radius: 6px;
+      background-color: #f0f8ff;
+      transition: box-shadow 0.3s ease-in-out, border-color 0.3s ease-in-out, backgroun-color 0.3s ease-in-out;
+    }
+
+    input[type="number"]:hover {
+      transition: background-color 0.3s ease;
+      background-color: #e8f0f7;
+    }
+
+    input[type="number"]:focus {
+      box-shadow: 0 0 10px rgba(41, 128, 185, 0.7);
+      border-color: #2980b9;
+      outline: none;
+    }
+
+    .calculatebutton, .close-btnc {
+      width: 100%;
+      padding: 0.75rem;
+      font-size: 1rem;
+      font-weight: bold;
+      background-color: #fff;
+      color: #333;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      margin-top: 0.5rem;
+      transition: box-shadow 0.15s ease,transform 0.15s ease;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+
+    }
+    .calculatebutton:hover, .close-btnc:hover {
+      transform: translateX(4px);
+      background-color: #f0f8ff; /* Svijetlo plava */
+    }
+    .preset-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      justify-content: center;
+      margin-bottom: 1rem;
+    }
+    .preset-buttons button {
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      background-color: #fff;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    .preset-buttons button:hover {
+      background-color: #e6e6e6;
+    }
+    .results {
+      margin-top: 1.5rem;
+      padding: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      background-color: #fff;
+      text-align: center;
+    }
+    #bijeli {
+      color: #000;
+    }
+    #plavi {
+      color: #007aab;
+    }
+    .sidebar-toggle {
+      position: fixed;
+      top: 50%;
+      right: 0;
+      transform: translateY(-50%);
+      width: 40px;
+      height: 40px;
+      background-color: rgba(52, 152, 219, 0.8);
+      color: white;
+      font-size: 24px;
+      border: none;
+      border-radius: 8px 0 0 8px;
+      cursor: pointer;
+      z-index: 1001;
+      transition: background-color 0.3s ease;
+      backdrop-filter: blur(4px);
+    }
+    .sidebar-toggle:hover {
+      background-color: rgba(93, 173, 226, 1);
+    }
+    .sidebar {
+      position: fixed;
+      top: 50%;
+      right: 8px;
+      transform: translateY(-50%) translateX(100%);
+      width: 180px;
+      background-color: #fff;
+      border-left: 1px solid #ccc;
+      padding: 0.5rem;
+      box-shadow: -2px 0 5px rgba(0, 0, 0, 0.05);
+      z-index: 999;
+      border-radius: 6px 0 0 6px;
+      transition: transform 0.3s ease;
+    }
+    .sidebar.open {
+      transform: translateY(-50%) translateX(0);
+    }
+    .sidebar a {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+      color: #007aab;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 0.9rem;
+      padding: 0.3rem;
+      border-radius: 4px;
+      transition: background-color 0.3s ease;
+    }
+    .sidebar a:hover {
+      background-color: #f0f8ff;
+    }
+    .material-icons {
+      font-size: 18px;
+    }
+
+    footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 80px;
+  color: gray;
+  text-align: center;
+  line-height: 80px; /* mora biti isto kao height */
+}
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="Početna.html" id="Početna">Početna</a>
+    <a href="MNO Kalkulator.html" id="mno" >MNO Kalkulator</a>
+    <a href="HEP Kalkulator.html" id="hepkalkulator">HEP Kalkulator</a>
+    <a href="ProvjeraObračuna.html" id="Provjera">Provjera obračuna</a>
+    <a href="Cijene.html" id="Cijene">Cijene</a>
+    <a href="Email predlošci.html">Predlošci</a>
+  </nav>
+
+  <button class="sidebar-toggle" onclick="toggleSidebar()">
+    <span class="material-icons">menu</span>
+  </button>
+  <div class="sidebar" id="sidebar">
+    <a href="https://szg01ccappel01.data.centar/live20/#" target="_blank">
+      <span class="material-icons">bolt</span> Live 2.0
+    </a>
+    <a href="http://sos01crp01.data.centar:8001/crm(bD1ociZjPTU2MCZkPW1pbg==)/default.htm?sap-client=560&sap-language=HR" target="_blank">
+      <span class="material-icons">settings</span> SAP CRM
+    </a>
+    <a href="https://elektra-prijepisi.hep.hr/admin/default.aspx" target="_blank">
+      <span class="material-icons">description</span> Prijepisi
+    </a>
+  </div>
+
+  <div class="container">
+    <h2>MNO Kalkulator</h2>
+    <div class="preset-buttons">
+      <button onclick="postaviIznos(5)">5€</button>
+      <button onclick="postaviIznos(10)">10€</button>
+      <button onclick="postaviIznos(15)">15€</button>
+      <button onclick="postaviIznos(20)">20€</button>
+      <button onclick="postaviIznos(25)">25€</button>
+      <button onclick="postaviIznos(30)">30€</button>
+      <button onclick="postaviIznos(35)">35€</button>
+      <button onclick="postaviIznos(40)">40€</button>
+      <button onclick="postaviIznos(45)">45€</button>
+      <button onclick="postaviIznos(50)">50€</button>
+    </div>
+    <div>
+      <label for="amount">Unesi iznos MNO:</label>
+      <input type="number" id="amount" placeholder="€" required>
+      <button onclick="calculate()" class="calculatebutton">Izračunaj</button>
+      <div class="results" id="results" style="display: none;">
+        <p id="bijeli"><b>VT:</b> <span id="vtResult">0</span> kWh</p>
+        <p id="bijeli"><b>NT:</b> <span id="ntResult">0</span> kWh</p>
+        <p id="plavi"><b>JT:</b> <span id="jtResult">0</span> kWh</p>
+      </div>
+      <button class="close-btnc" onclick="resetCalculator()">Poništi</button>
+    </div>
+  </div>
+
+    <footer>
+  <p>Izradio: Ivan Balić</p>
+</footer>
+  <script>
+    function calculate() {
+      const L5 = parseFloat(document.getElementById('amount').value);
+      const resultsDiv = document.getElementById('results');
+
+      if (isNaN(L5) || L5 <= 0) {
+        alert("Unesite ispravan iznos u eurima.");
+        return;
+      }
+
+      const vt = (L5 - 3.05778) / 0.224631 > 0 ? (L5 - 3.05778) / 0.224631 : 0;
+      const nt = (L5 - 3.05778) / 0.417172 > 0 ? (L5 - 3.05778) / 0.417172 : 0;
+      const jt = (L5 - 3.05778) / 0.156767 > 0 ? (L5 - 3.05778) / 0.156767 : 0;
+
+      document.getElementById('vtResult').textContent = vt.toFixed(0);
+      document.getElementById('ntResult').textContent = nt.toFixed(0);
+      document.getElementById('jtResult').textContent = jt.toFixed(0);
+
+      resultsDiv.style.display = 'block';
+    }
+
+    function resetCalculator() {
+      document.getElementById('amount').value = '';
+      document.getElementById('results').style.display = 'none';
+      document.getElementById('vtResult').textContent = '0';
+      document.getElementById('ntResult').textContent = '0';
+      document.getElementById('jtResult').textContent = '0';
+    }
+
+    function postaviIznos(iznos) {
+      document.getElementById('amount').value = iznos;
+      calculate();
+    }
+
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      sidebar.classList.toggle('open');
+    }
+  </script>
+</body>
+</html>
