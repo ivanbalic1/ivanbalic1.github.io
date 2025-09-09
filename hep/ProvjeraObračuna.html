@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="favicon.png" type="image/x-icon">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <title>Provjera obračuna</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+     /* background: hsla(218, 100%, 95%, 1);
+
+background: linear-gradient(360deg, hsla(218, 100%, 95%, 1) 0%, hsla(186, 100%, 69%, 1) 100%);
+
+background: -moz-linear-gradient(360deg, hsla(218, 100%, 95%, 1) 0%, hsla(186, 100%, 69%, 1) 100%);
+
+background: -webkit-linear-gradient(360deg, hsla(218, 100%, 95%, 1) 0%, hsla(186, 100%, 69%, 1) 100%);
+
+filter: progid: DXImageTransform.Microsoft.gradient( startColorstr="#E6EFFF", endColorstr="#60efff", GradientType=1 );*/
+      background-color: #fcfcf9;
+      color: #585858;
+      margin: 0;
+      padding-top: 70px;
+    }
+    nav {
+      background: linear-gradient(90deg, #2c3e50, #3498db);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1rem;
+      padding: 1rem 2rem;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 1000;
+    }
+    nav a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      transition: background-color 0.3s ease;
+    }
+    nav a:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+      }
+    #Provjera {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+    .container {
+      max-width: 600px;
+      margin: auto;
+      padding: 2rem;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    label {
+      font-weight: bold;
+    }
+    input[type="number"], select {
+      width: 100%;
+      padding: 0.75rem;
+      margin-top: 0.25rem;
+      margin-bottom: 1rem;
+      box-sizing: border-box;
+      border: solid #f1f1f1 0.2px;
+      border-radius: 6px;
+      transition: box-shadow 0.3s ease-in-out, border-color 0.3s ease-in-out;
+    }
+    input[type="number"]:hover {
+      transition: background-color 0.3s ease;
+      background-color: #e8f0f7;
+    }
+
+    input[type="number"]:focus {
+     box-shadow: 0 0 12px rgba(41, 128, 185, 0.9);
+      border-color: #2980b9;
+      outline: none;
+    }
+
+    select:focus {
+      outline: none;
+      border-color: #2980b9;
+    }
+
+    select:focus {
+      background-color: #f0f8ff;
+    }
+    button {
+      width: 100%;
+      padding: 0.75rem;
+      font-size: 1rem;
+      font-weight: bold;
+      background-color: #fff;
+      color: #333;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      transition: box-shadow 0.15s ease,transform 0.15s ease;
+      margin-top: 0.5rem;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+
+    }
+    button:hover {
+      background-color: #f0f8ff; /* Svijetlo plava */
+      transform: translateX(4px);
+    }
+    .rezultat {
+      margin-top: 2rem;
+      padding: 1rem;
+      border: none;
+      border-radius: 6px;
+      text-align: center;
+      font-weight: bold;
+    }
+    .rezultat.dug {
+        background: rgba(255, 149, 151, 0.664);
+        color: rgb(187, 28, 31);
+    }
+    .rezultat.preplata {
+      background: light-dark(#e0f5ea,rgba(88,203,143,.1));
+      color: #58cb8f;
+    }
+    .rezultat.podmiren {
+      background-color: #fff;
+      color: #333;
+    }
+    .sidebar-toggle {
+      position: fixed;
+      top: 50%;
+      right: 0;
+      transform: translateY(-50%);
+      width: 40px;
+      height: 40px;
+      background-color: rgba(52, 152, 219, 0.8);
+      color: white;
+      font-size: 24px;
+      border: none;
+      border-radius: 8px 0 0 8px;
+      cursor: pointer;
+      z-index: 1001;
+      transition: background-color 0.3s ease;
+      backdrop-filter: blur(4px);
+    }
+    .sidebar-toggle:hover {
+      background-color: rgba(93, 173, 226, 1);
+    }
+    .sidebar {
+      position: fixed;
+      top: 50%;
+      right: 8px;
+      transform: translateY(-50%) translateX(100%);
+      width: 180px;
+      background-color: #fff;
+      border-left: 1px solid #ccc;
+      padding: 0.5rem;
+      box-shadow: -2px 0 5px rgba(0, 0, 0, 0.05);
+      z-index: 999;
+      border-radius: 6px 0 0 6px;
+      transition: transform 0.3s ease;
+    }
+    .sidebar.open {
+      transform: translateY(-50%) translateX(0);
+    }
+    .sidebar a {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+      color: #007aab;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 0.9rem;
+      padding: 0.3rem;
+      border-radius: 4px;
+      transition: background-color 0.3s ease;
+    }
+    .sidebar a:hover {
+      background-color: #f0f8ff;
+    }
+    .material-icons {
+      font-size: 18px;
+    }
+
+    footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 80px;
+  color: gray;
+  text-align: center;
+  line-height: 80px; /* mora biti isto kao height */
+}
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="Početna.html" id="Početna">Početna</a>
+    <a href="MNO Kalkulator.html" id="mno" >MNO Kalkulator</a>
+    <a href="HEP Kalkulator.html" id="hepkalkulator">HEP Kalkulator</a>
+    <a href="ProvjeraObračuna.html" id="Provjera">Provjera obračuna</a>
+    <a href="Cijene.html" id="Cijene">Cijene</a>
+    <a href="Email predlošci.html">Predlošci</a>
+  </nav>
+
+  <button class="sidebar-toggle" onclick="toggleSidebar()">
+    <span class="material-icons">menu</span>
+  </button>
+  <div class="sidebar" id="sidebar">
+    <a href="https://szg01ccappel01.data.centar/live20/#" target="_blank">
+      <span class="material-icons">bolt</span> Live 2.0
+    </a>
+    <a href="http://sos01crp01.data.centar:8001/crm(bD1ociZjPTU2MCZkPW1pbg==)/default.htm?sap-client=560&sap-language=HR" target="_blank">
+      <span class="material-icons">settings</span> SAP CRM
+    </a>
+    <a href="https://elektra-prijepisi.hep.hr/admin/default.aspx" target="_blank">
+      <span class="material-icons">description</span> Prijepisi
+    </a>
+  </div>
+
+  <div class="container">
+    <h1>Provjera obračuna</h1>
+
+    <label for="potrosnja">Ukupan iznos računa(A)(EUR):</label>
+    <input type="number" id="potrosnja" step="0.01">
+
+    <label for="prethodno">Dug / Preplata na datum prethodnog obračuna (EUR):</label>
+    <input type="number" id="prethodno" step="0.01">
+
+    <label for="tip">Tip prethodnog iznosa:</label>
+    <select id="tip">
+      <option value="dug">Dug</option>
+      <option value="preplata">Preplata</option>
+    </select>
+
+    <label for="uplata">Uplaćeni iznos (EUR):</label>
+    <input type="number" id="uplata" step="0.01">
+
+    <button onclick="Provjerobracun()">Izračunaj</button>
+    <button onclick="OcistiPolja()">Poništi</button>
+
+    <div class="rezultat" id="rezultat"></div>
+  </div>
+  <footer>
+  <p>Izradio: Ivan Balić</p>
+</footer>
+  <script>
+    function Provjerobracun() {
+      const potrosnja = parseFloat(document.getElementById('potrosnja').value) || 0;
+      const prethodno = parseFloat(document.getElementById('prethodno').value) || 0;
+      const tip = document.getElementById('tip').value;
+      const uplata = parseFloat(document.getElementById('uplata').value) || 0;
+
+      let ukupno = potrosnja;
+
+      if (tip === 'dug') {
+        ukupno += prethodno;
+      } else {
+        ukupno -= prethodno;
+      }
+
+      const razlika = uplata - ukupno;
+      let poruka = "";
+      const rezultatDiv = document.getElementById('rezultat');
+
+      rezultatDiv.className = 'rezultat';
+
+      if (razlika > 0) {
+        poruka = `Preplata: ${razlika.toFixed(2)} EUR.`;
+        rezultatDiv.classList.add('preplata');
+      } else if (razlika < 0) {
+        poruka = `Dug: ${Math.abs(razlika).toFixed(2)} EUR.`;
+        rezultatDiv.classList.add('dug');
+      } else {
+        poruka = `Račun je potpuno podmiren.`;
+        rezultatDiv.classList.add('podmiren');
+      }
+
+      rezultatDiv.innerText = poruka;
+    }
+
+    function OcistiPolja() {
+      document.getElementById('potrosnja').value = '';
+      document.getElementById('prethodno').value = '';
+      document.getElementById('tip').value = 'dug';
+      document.getElementById('uplata').value = '';
+      const rezultatDiv = document.getElementById('rezultat');
+      rezultatDiv.innerText = '';
+      rezultatDiv.className = 'rezultat';
+    }
+
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      sidebar.classList.toggle('open');
+    }
+
+
+  </script>
+</body>
+</html>
