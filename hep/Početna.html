@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="favicon.png" type="image/x-icon">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <title>Početna</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+    /*  background: hsla(218, 100%, 95%, 1);
+
+      background: linear-gradient(360deg, hsla(218, 100%, 95%, 1) 0%, hsla(186, 100%, 69%, 1) 100%);
+
+      background: -moz-linear-gradient(360deg, hsla(218, 100%, 95%, 1) 0%, hsla(186, 100%, 69%, 1) 100%); 
+
+      background: -webkit-linear-gradient(360deg, hsla(218, 100%, 95%, 1) 0%, hsla(186, 100%, 69%, 1) 100%);
+
+      filter: progid: DXImageTransform.Microsoft.gradient( startColorstr="#E6EFFF", endColorstr="#60efff", GradientType=1 ); */
+      background: #fcfcf9;
+      color: #585858;
+      margin: 0;
+      padding-top: 70px;
+    }
+    nav {
+      background: linear-gradient(90deg, #2c3e50, #3498db);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1rem;
+      padding: 1rem 2rem;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 1000;
+    }
+    nav a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      transition: background-color 0.5s ease;
+    }
+    nav a:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: auto;
+      padding: 2rem;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 2rem;
+      background: -webkit-linear-gradient(#2c3e50, #3498db);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .obrasci {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.2rem;
+      justify-content: center;
+    }
+    .shortcut-button, .shortcut-button-ods {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background-color: #fdf8c2;
+      border: none;
+      padding: 1rem;
+      border-radius: 10px;
+      text-decoration: none;
+      color: #585858;
+      font-weight: 500;
+      flex: 1 1 300px;
+      max-width: 400px;
+      cursor: pointer;
+      transition: color 0.15s ease,transform 0.15s ease;
+      will-change: color,transform;
+      background: #fef2c5;
+      height: 48px;
+      padding: 6px 32px;
+      font-size: 18px;
+      color: #36395a;
+      transition: color 0.15s ease,transform 0.15s ease;
+    }
+    .shortcut-button:hover, .shortcut-button-ods:hover {
+      background-color: #fce9a7;;;
+      /* transform: translateY(-4px); /* animacija pomicanja */
+      transition: transform 0.3s ease;  
+    }
+    .shortcut-button i.arrow, .shortcut-button-ods i.arrow {
+      margin-left: auto;
+      font-weight: bold;
+      transition: transform 0.3s ease;
+    }
+    .shortcut-button:hover i.arrow, .shortcut-button-ods:hover i.arrow {
+      transform: translateX(20px);
+    }
+    .material-icons {
+      font-size: 20px;
+    }
+    .external-source {
+      margin-top: 2rem;
+      text-align: center;
+    }
+    .external-source a {
+      display: inline-block;
+      text-decoration: none;
+      color: #007aab;
+      background-color: rgba(0, 0, 0, 0.1);
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      font-weight: bold;
+      transition: background-color 0.3s ease;
+    }
+    .external-source a:hover {
+      background-color: #d0eaf5;
+    }
+
+/*  .weatherwidget-io {
+    margin-top: 40px;
+    border-radius: 10px;
+    box-shadow: 0px 2px 4px rgb(45 35 66 / 40%), 0px 7px 13px -3px rgb(45 35 66 / 30%), inset 0px -3px 0px #d6d6e7;
+  }
+*/
+  .dropdown {
+      position: relative;
+    }
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      background-color: #3498db;
+      min-width: 200px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+      z-index: 1001;
+    }
+    .dropdown-content a {
+      padding: 0.5rem 1rem;
+      color: #fff;
+      text-decoration: none;
+      display: block;
+    }
+    .dropdown-content a:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+    .dropdown:hover .dropdown-content {
+      display: block;
+    }
+
+    nav .dropdown {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 80px;
+  color: gray;
+  text-align: center;
+  line-height: 80px; /* mora biti isto kao height */
+}
+
+  </style>
+</head>
+<body>
+  <nav>
+        <div class="dropdown">
+      <a href="#" >Obrasci</a>
+      <div class="dropdown-content">
+        <a href="#">Stavka 1</a>
+        <a href="#">Stavka 2</a>
+        <a href="#">Stavka 3</a>
+        <a href="#">Stavka 4</a>
+        <a href="#">Stavka 5</a>
+        <a href="#">Stavka 6</a>
+        <a href="#">Stavka 7</a>
+      </div>
+    </div>
+    <a href="MNO Kalkulator.html">MNO Kalkulator</a>
+    <a href="HEP Kalkulator.html">HEP Kalkulator</a>
+    <a href="ProvjeraObračuna.html">Provjera obračuna</a>
+    <a href="Cijene.html">Cijene</a>
+    <a href="Email predlošci.html">Predlošci</a>
+  </nav>
+  <div class="container">
+    <h2>Obrasci</h2>
+    <div class="obrasci">
+      <a href="https://www.hep.hr/elektra/UserDocsImages/dokumenti/obrasci_i_dokumenti/Zahtjev_obrazac_11_2023.pdf" class="shortcut-button" target="_blank">
+        <i class="material-icons">contact_page</i>
+        Obrazac zahtjeva
+        <i class="material-icons arrow">arrow_forward</i>
+      </a>
+      <a href="https://www.hep.hr/elektra/UserDocsImages/dokumenti/obrasci_i_dokumenti/Promjena_vlasnistva_zahtjev_novog_vlasnika_jedan_vlasnik_1.pdf" class="shortcut-button" target="_blank">
+        <i class="material-icons">person_add</i>
+        Promjena kupca (jedan vlasnik)
+        <i class="material-icons arrow">arrow_forward</i>
+      </a>
+      <a href="https://www.hep.hr/elektra/UserDocsImages/dokumenti/obrasci_i_dokumenti/Promjena_vlasnistva_zahtjev_novog_vlasnika_vise_suvlasnika.pdf" class="shortcut-button" target="_blank">
+        <i class="material-icons">group_add</i>Promjena kupca (suvlasništvo)
+        <i class="material-icons arrow">arrow_forward</i>
+      </a>
+      <a href="https://www.hep.hr/elektra/UserDocsImages/dokumenti/obrasci_i_dokumenti/Promjena_kupca_temeljem_ugovora_o_najmu_zakupu_1.pdf" class="shortcut-button" target="_blank">
+        <i class="material-icons">library_books</i>
+        Ugovor o najmu
+        <i class="material-icons arrow">arrow_forward</i>
+      </a>
+      <a href="https://www.hep.hr/elektra/UserDocsImages/dokumenti/obrasci_i_dokumenti/Promjena_kupca_uslijed_promjene_vlasnistva_zahtjev_starog_vlasnika_stari_kupac_1.pdf" class="shortcut-button" target="_blank">
+        <i class="material-icons">person_off</i>
+        Zahtjev starog vlasnika (raskid)
+        <i class="material-icons arrow">arrow_forward</i>
+      </a>
+      <a href="https://www.hep.hr/elektra/UserDocsImages/dokumenti/obrasci_i_dokumenti/Promjena_kupca_uslijed_raskida_ugovora_o_najmu_zakupu_Zahtjev_najmoprimca.pdf" class="shortcut-button" target="_blank">
+        <i class="material-icons">person_off</i>
+        Zahtjev najmoprimca (raskid)
+        <i class="material-icons arrow">arrow_forward</i>
+      </a>
+      <a href="https://www.hep.hr/elektra/UserDocsImages/dokumenti/obrasci_i_dokumenti/Promjena_kupca_uslijed_raskida_ugovora_o_najmu_zakupu_Zahtjev_najmodavca__1.pdf" class="shortcut-button" target="_blank">
+        <i class="material-icons">person_off</i>
+        Zahtjev najmodavca (raskid)
+        <i class="material-icons arrow">arrow_forward</i>
+      </a>
+      <a href="https://www.hep.hr/elektra/UserDocsImages/dokumenti/obrasci_i_dokumenti/kupac_s_vlastitom_proizvodnjom/Zahtjev_za_sklapanje_ugovora_o_opskrbi_kranjeg_kupca_kojim_je_reguliran_i_otkup_elektricne_energije.pdf" class="shortcut-button" target="_blank">
+        <i class="material-icons">solar_power</i>
+        Ugovor (otkup)
+        <i class="material-icons arrow">arrow_forward</i>
+      </a>
+      <a href="C:\\Users\\ibalic2\\Desktop\\Obr\\Obrasci\\Poduzetništvo_Izjava zajamčena.docx" class="shortcut-button" target="_blank">
+        <i class="material-icons">factory</i>
+        Poduzetništvo izjava
+        <i class="material-icons arrow">arrow_forward</i>
+      </a>
+      <a href="https://elektra-prijepisi.hep.hr/Interni" class="shortcut-button" target="_blank">
+        <i class="material-icons">public</i>
+        Prijepis online (Interni)
+        <i class="material-icons arrow">arrow_forward</i>
+      </a>
+      <a href="https://www.hep.hr/ods/UserDocsImages/vazeci_obrasci/03_zahtjev_%20obracunski_elementi.pdf" class="shortcut-button-ods" target="_blank">
+        <i class="material-icons">power</i>
+        Obračunski elementi (ODS)
+        <i class="material-icons arrow">arrow_forward</i>
+      </a>
+    </div>
+    <div class="external-source">
+      <a href="https://www.hep.hr/elektra/trziste-elektricne-energije/propisi-i-obrasci/1542" target="_blank">
+        <span class="material-icons" style="vertical-align: middle;">link</span> Izvorni obrasci (HEP stranica)
+      </a>
+    </div>
+   <!-- <a class="weatherwidget-io" href="https://forecast7.com/hr/45d9016d84/bjelovar/" data-label_1="BJELOVAR" data-label_2="Vrijeme" data-theme="weather_one" >BJELOVAR Vrijeme</a> -->
+<script>
+!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src='https://weatherwidget.io/js/widget.min.js';fjs.parentNode.insertBefore(js,fjs);}}(document,'script','weatherwidget-io-js');
+</script>
+  </div>
+  <footer>
+  <p>Izradio: Ivan Balić</p>
+</footer>
+</body>
+</html>
