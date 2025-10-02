@@ -272,9 +272,9 @@ filter: progid: DXImageTransform.Microsoft.gradient( startColorstr="#E6EFFF", en
         return;
       }
 
-      const vt = (L5 - 3.05778) / 0.224631 > 0 ? (L5 - 3.05778) / 0.224631 : 0;
-      const nt = (L5 - 3.05778) / 0.417172 > 0 ? (L5 - 3.05778) / 0.417172 : 0;
-      const jt = (L5 - 3.05778) / 0.156767 > 0 ? (L5 - 3.05778) / 0.156767 : 0;
+      const vt = (L5 - 3.05778) / (0,190293+0,538462*0,097403) > 0 ? (L5 - 3.05778) / (0,190293+0,538462*0,097403): 0;
+      const nt = (L5 - 3.05778) / (0,097403+1,857143*0,190293) > 0 ? (L5 - 3.05778) / (0,097403+1,857143*0,190293) : 0;
+      const jt = (L5 - 3.05778) / 0,170228 > 0 ? (L5 - 3.05778) / 0,170228 : 0;
 
       document.getElementById('vtResult').textContent = vt.toFixed(0);
       document.getElementById('ntResult').textContent = nt.toFixed(0);
