@@ -294,7 +294,7 @@ filter: progid: DXImageTransform.Microsoft.gradient( startColorstr="#E6EFFF", en
 
 
   // Kad input polje postane aktivno (odabrano bilo kako) -> reset gumbi
-  amount.addEventListener('focus', function() {
+  amount.addEventListener('input', function() {
     presetButtons.forEach(btn => btn.classList.remove('active'));
   });
 
