@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HEP MNO Kalkulator</title>
+    <!-- PWA: Link na Manifest datoteku -->
+    <link rel="manifest" href="manifest.json">
+    <!-- Učitavanje Tailwind CSS-a -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7f9fb;
+            color: #585858;
+            padding-top: 70px;
+            padding-bottom: 80px;
+            min-height: 100vh;
+            box-sizing: border-box;
+            position: relative;
+        }
+        
+        /* Fiksna navigacija na vrhu */
+        nav {
+            background: linear-gradient(90deg, #EDCB96, #F7C4A5);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+        
+        /* Kartica kalkulatora */
+        .calculator-card {
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 0 10px rgba(0, 0, 0, 0.05);
+            background-color: #ffffff;
+            border-radius: 1.5rem; /* 24px */
+        }
+
+        /* Sidebar stilovi */
+        .sidebar {
+            position: fixed;
+            top: 50%;
+            right: 0;
+            transform: translateY(-50%) translateX(100%);
+            width: 180px;
+            background-color: #fff;
+            padding: 0.5rem;
+            box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+            z-index: 999;
+            border-radius: 6px 0 0 6px;
+            transition: transform 0.3s ease;
+        }
+        .sidebar.open {
+            transform: translateY(-50%) translateX(-8px); /* -8px radi malog razmaka od desne ivice */
+        }
+
+        /* Footer stil */
+        footer {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 80px;
+            color: #9ca3af; /* Gray-400 */
+            text-align: center;
+            line-height: 80px;
+        }
+
+    </style>
+</head>
+<body class="flex flex-col items-center">
+    
+    <!-- Navigacija (Zadržani su samo eksterni linkovi za brzi pristup) -->
+    <nav class="flex flex-wrap justify-center gap-4 py-4 px-8">
+        <span class="text-white font-extrabold text-xl">MNO Kalkulator (HEP)</span>
+        <!-- Napomena: Originalni navigacijski linkovi uklonjeni zbog ograničenja jedne datoteke. -->
+    </nav>
+
+    <!-- Sidebar Toggle Gumb -->
+    <button class="sidebar-toggle fixed top-1/2 right-0 transform -translate-y-1/2 w-10 h-10 bg-blue-500 text-white text-2xl border-none rounded-l-lg cursor-pointer z-[1001] transition duration-300 hover:bg-blue-600 shadow-md" 
+            onclick="toggleSidebar()">
+        <span class="material-icons">menu</span>
+    </button>
+    
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <a href="https://szg01ccappel01.data.centar/live20/#" target="_blank" class="flex items-center gap-1 text-blue-700 font-semibold text-sm p-1 rounded-md hover:bg-blue-50">
+            <span class="material-icons text-base">bolt</span> Live 2.0
+        </a>
+        <a href="http://sos01crp01.data.centar:8001/crm(bD1ociZjPTU2MCZkPW1pbg==)/default.htm?sap-client=560&sap-language=HR" target="_blank" class="flex items-center gap-1 text-blue-700 font-semibold text-sm p-1 rounded-md hover:bg-blue-50">
+            <span class="material-icons text-base">settings</span> SAP CRM
+        </a>
+        <a href="https://elektra-prijepisi.hep.hr/admin/default.aspx" target="_blank" class="flex items-center gap-1 text-blue-700 font-semibold text-sm p-1 rounded-md hover:bg-blue-50">
+            <span class="material-icons text-base">description</span> Prijepisi
+        </a>
+    </div>
+
+    <!-- Glavni kontejner kalkulatora -->
+    <main class="w-full max-w-xl p-4 md:p-8 flex justify-center">
+        <div class="calculator-card w-full p-6 md:p-10">
+
+            <h1 class="text-3xl md:text-4xl font-extrabold text-center text-indigo-700 mb-6">
+                MNO Kalkulator
+            </h1>
+            <p class="text-center text-gray-500 mb-8">
+                Brzo izračunajte koliko kWh ćete dobiti za željeni iznos MNO.
+            </p>
+
+            <!-- Gumbi s predefiniranim iznosima -->
+            <div class="flex flex-wrap justify-center gap-2 mb-6">
+                <button onclick="postaviIznos(5)" class="preset-btn p-2 text-sm font-semibold border border-gray-300 bg-gray-100 rounded-lg transition duration-150 hover:bg-gray-200">5€</button>
+                <button onclick="postaviIznos(10)" class="preset-btn p-2 text-sm font-semibold border border-gray-300 bg-gray-100 rounded-lg transition duration-150 hover:bg-gray-200">10€</button>
+                <button onclick="postaviIznos(15)" class="preset-btn p-2 text-sm font-semibold border border-gray-300 bg-gray-100 rounded-lg transition duration-150 hover:bg-gray-200">15€</button>
+                <button onclick="postaviIznos(20)" class="preset-btn p-2 text-sm font-semibold border border-gray-300 bg-gray-100 rounded-lg transition duration-150 hover:bg-gray-200">20€</button>
+                <button onclick="postaviIznos(25)" class="preset-btn p-2 text-sm font-semibold border border-gray-300 bg-gray-100 rounded-lg transition duration-150 hover:bg-gray-200">25€</button>
+                <button onclick="postaviIznos(30)" class="preset-btn p-2 text-sm font-semibold border border-gray-300 bg-gray-100 rounded-lg transition duration-150 hover:bg-gray-200">30€</button>
+                <button onclick="postaviIznos(35)" class="preset-btn p-2 text-sm font-semibold border border-gray-300 bg-gray-100 rounded-lg transition duration-150 hover:bg-gray-200">35€</button>
+                <button onclick="postaviIznos(40)" class="preset-btn p-2 text-sm font-semibold border border-gray-300 bg-gray-100 rounded-lg transition duration-150 hover:bg-gray-200">40€</button>
+                <button onclick="postaviIznos(45)" class="preset-btn p-2 text-sm font-semibold border border-gray-300 bg-gray-100 rounded-lg transition duration-150 hover:bg-gray-200">45€</button>
+                <button onclick="postaviIznos(50)" class="preset-btn p-2 text-sm font-semibold border border-gray-300 bg-gray-100 rounded-lg transition duration-150 hover:bg-gray-200">50€</button>
+                <button onclick="postaviIznos(55)" class="preset-btn p-2 text-sm font-semibold border border-gray-300 bg-gray-100 rounded-lg transition duration-150 hover:bg-gray-200">55€</button>
+                <button onclick="postaviIznos(60)" class="preset-btn p-2 text-sm font-semibold border border-gray-300 bg-gray-100 rounded-lg transition duration-150 hover:bg-gray-200">60€</button>
+            </div>
+            
+            <!-- Unos iznosa -->
+            <div>
+                <label for="amount" class="block text-lg font-semibold text-gray-700 mb-2">Unesi iznos MNO:</label>
+                <input type="number" id="amount" placeholder="€" required
+                       class="w-full p-3 border-2 border-indigo-200 rounded-lg bg-blue-50 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 mb-4 shadow-inner">
+                
+                <!-- Poruka o grešci -->
+                <p id="error-message" class="text-red-600 font-bold text-center mb-4 hidden"></p>
+                
+                <!-- Gumb za izračun -->
+                <button onclick="calculate()" 
+                        class="w-full p-3 font-extrabold bg-indigo-600 text-white rounded-xl cursor-pointer transition duration-300 transform hover:scale-[1.01] hover:bg-indigo-700 shadow-lg mb-3">
+                    Izračunaj
+                </button>
+
+                <!-- Prikaz rezultata -->
+                <div class="results mt-6 p-4 border border-gray-200 rounded-xl bg-white shadow-inner space-y-2" id="results" style="display: none;">
+                    <p class="font-bold text-gray-800 flex justify-between items-center">
+                        <span><b class="text-red-500">VT:</b></span>
+                        <span id="vtResult" class="text-xl font-extrabold">0</span> kWh
+                    </p>
+                    <p class="font-bold text-gray-800 flex justify-between items-center">
+                        <span><b class="text-red-500">NT:</b></span>
+                        <span id="ntResult" class="text-xl font-extrabold">0</span> kWh
+                    </p>
+                    <hr class="border-gray-100">
+                    <p class="font-bold text-blue-700 flex justify-between items-center">
+                        <span><b class="text-blue-500">JT (Jednotarifno):</b></span>
+                        <span id="jtResult" class="text-xl font-extrabold">0</span> kWh
+                    </p>
+                </div>
+
+                <!-- Gumb za poništavanje -->
+                <button class="close-btnc w-full p-3 font-bold bg-gray-200 text-gray-800 rounded-xl cursor-pointer transition duration-300 transform hover:scale-[1.01] hover:bg-gray-300 mt-4 shadow-md" 
+                        onclick="resetCalculator()">
+                    Poništi
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <p>Aplikacija za HEP MNO Kalkulator</p>
+    </footer>
+    
+    <script type="module">
+        // --- Firebase Inicijalizacija (MANDATORNA za Canvas) ---
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        let app, db, auth;
+
+        window.onload = async function () {
+            try {
+                app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+                setLogLevel('Debug');
+                
+                if (initialAuthToken) {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                } else {
+                    await signInAnonymously(auth);
+                }
+                console.log("Firebase i autentiikacija spremni. Korisnik ID:", auth.currentUser?.uid || 'Anoniman');
+            } catch (error) {
+                console.error("Greška pri inicijalizaciji Firebasea ili autentifikaciji:", error);
+            }
+        };
+        // --- Kraj Firebase Inicijalizacije ---
+
+        const presetButtons = document.querySelectorAll('.preset-btn');
+        const amountInput = document.getElementById('amount');
+        const resultsDiv = document.getElementById('results');
+        const errorMessage = document.getElementById('error-message');
+
+        // Funkcija za označavanje aktivnog gumba
+        presetButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                presetButtons.forEach(btn => btn.classList.remove('active', 'bg-indigo-600', 'text-white'));
+                this.classList.add('active', 'bg-indigo-600', 'text-white');
+            });
+        });
+
+        // Kad input polje postane aktivno (unos) -> reset gumbi
+        amountInput.addEventListener('input', function() {
+            presetButtons.forEach(btn => btn.classList.remove('active', 'bg-indigo-600', 'text-white'));
+            if (this.value) calculate();
+        });
+
+        // Glavna funkcija za izračun (Formule preuzete iz vašeg koda)
+        window.calculate = function() {
+            const L5 = parseFloat(amountInput.value);
+            errorMessage.classList.add('hidden'); // Sakrij poruku o grešci
+
+            if (isNaN(L5) || L5 <= 0) {
+                errorMessage.textContent = "Unesite ispravan iznos u eurima.";
+                errorMessage.classList.remove('hidden');
+                resultsDiv.style.display = 'none';
+                return;
+            }
+
+            // Fiksni trošak (Naknada za ODS + PDV na MNO)
+            const fixedCost = 3.05778; 
+            
+            // Cijene kWh (izvučene iz vaših formula)
+            // VT (Viša tarifa)
+            const vtDenominator = (0.190293 + 0.538462 * 0.097403); 
+            // NT (Niža tarifa)
+            const ntDenominator = (0.097403 + 1.857143 * 0.190293);
+            // JT (Jednotarifno)
+            const jtDenominator = 0.170228;
+
+            // Izračun, osiguravajući da rezultat nije negativan
+            const vt = (L5 - fixedCost) / vtDenominator;
+            const nt = (L5 - fixedCost) / ntDenominator;
+            const jt = (L5 - fixedCost) / jtDenominator;
+
+
+            // Prikaz rezultata (zaokruženo na 0 decimala kako je bilo u originalnom kodu)
+            document.getElementById('vtResult').textContent = vt > 0 ? vt.toFixed(0) : '0';
+            document.getElementById('ntResult').textContent = nt > 0 ? nt.toFixed(0) : '0';
+            document.getElementById('jtResult').textContent = jt > 0 ? jt.toFixed(0) : '0';
+
+            resultsDiv.style.display = 'block';
+        }
+
+        // Funkcija za poništavanje
+        window.resetCalculator = function() {
+            amountInput.value = '';
+            resultsDiv.style.display = 'none';
+            errorMessage.classList.add('hidden');
+            presetButtons.forEach(btn => btn.classList.remove('active', 'bg-indigo-600', 'text-white'));
+            document.getElementById('vtResult').textContent = '0';
+            document.getElementById('ntResult').textContent = '0';
+            document.getElementById('jtResult').textContent = '0';
+        }
+
+        // Funkcija za postavljanje iznosa (koristi se u gumbima)
+        window.postaviIznos = function(iznos) {
+            amountInput.value = iznos;
+            calculate();
+        }
+
+        // Funkcija za prebacivanje Sidebar-a
+        window.toggleSidebar = function() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
+        }
+
+        // --- PWA Service Worker Registracija ---
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                    }, err => {
+                        console.log('ServiceWorker registration failed: ', err);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>
