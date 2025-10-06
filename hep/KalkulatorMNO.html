@@ -3,25 +3,23 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Link na Manifest datoteku -->
+  <link rel="manifest" href="manifest.json">
+  
   <link rel="icon" href="hep/favicon.png" type="image/x-icon">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <title>MNO Kalkulator</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-     /* background: hsla(218, 100%, 95%, 1);
-
-background: linear-gradient(360deg, hsla(218, 100%, 95%, 1) 0%, hsla(186, 100%, 69%, 1) 100%);
-
-background: -moz-linear-gradient(360deg, hsla(218, 100%, 95%, 1) 0%, hsla(186, 100%, 69%, 1) 100%);
-
-background: -webkit-linear-gradient(360deg, hsla(218, 100%, 95%, 1) 0%, hsla(186, 100%, 69%, 1) 100%);
-
-filter: progid: DXImageTransform.Microsoft.gradient( startColorstr="#E6EFFF", endColorstr="#60efff", GradientType=1 ); */
       background-color: #fcfcf9;
       color: #585858;
       margin: 0;
       padding-top: 70px;
+      padding-bottom: 80px; /* Dodan padding za footer */
+      position: relative;
+      min-height: 100vh;
+      box-sizing: border-box;
     }
     nav {
       background: linear-gradient(90deg, #EDCB96, #F7C4A5);
@@ -72,20 +70,17 @@ filter: progid: DXImageTransform.Microsoft.gradient( startColorstr="#E6EFFF", en
       border: none;
       border-radius: 6px;
       background-color: #f0f8ff;
-      transition: box-shadow 0.3s ease-in-out, border-color 0.3s ease-in-out, backgroun-color 0.3s ease-in-out;
+      transition: box-shadow 0.3s ease-in-out, border-color 0.3s ease-in-out, background-color 0.3s ease-in-out;
     }
-
     input[type="number"]:hover {
       transition: background-color 0.3s ease;
       background-color: #e8f0f7;
     }
-
     input[type="number"]:focus {
       box-shadow: 0 0 10px rgba(41, 128, 185, 0.7);
       border-color: #2980b9;
       outline: none;
     }
-
     .calculatebutton, .close-btnc {
       width: 100%;
       padding: 0.75rem;
@@ -100,11 +95,11 @@ filter: progid: DXImageTransform.Microsoft.gradient( startColorstr="#E6EFFF", en
       margin-top: 0.5rem;
       transition: box-shadow 0.15s ease,transform 0.15s ease;
       box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-
     }
     .calculatebutton:hover, .close-btnc:hover {
-      transform: translateX(4px);
-      background-color: #f0f8ff; /* Svijetlo plava */
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      background-color: #f0f8ff;
     }
     .preset-buttons {
       display: flex;
@@ -114,32 +109,22 @@ filter: progid: DXImageTransform.Microsoft.gradient( startColorstr="#E6EFFF", en
       margin-bottom: 1rem;
     }
     .preset-buttons button {
-      padding: 0.5rem 1rem;
-      border-radius: 6px;
-      background-color: #fff;
+      padding: 10px 15px;
+      margin: 5px;
       border: none;
-      font-weight: bold;
+      background-color: lightgray;
       cursor: pointer;
-      transition: background-color 0.3s ease;
+      border-radius: 5px;
+      font-weight: bold;
+      transition: background-color 0.3s ease, color 0.3s ease;
     }
     .preset-buttons button:hover {
       background-color: #e6e6e6;
     }
-
-     .preset-buttons button {
-    padding: 10px 15px;
-    margin: 5px;
-    border: none;
-    background-color: lightgray;
-    cursor: pointer;
-    border-radius: 5px;
-  }
-
-  .preset-buttons button.active {
-    background-color: #272727;
-    color: white;
-  }
-
+    .preset-buttons button.active {
+      background-color: #272727;
+      color: white;
+    }
     .results {
       margin-top: 1.5rem;
       padding: 1rem;
@@ -147,6 +132,12 @@ filter: progid: DXImageTransform.Microsoft.gradient( startColorstr="#E6EFFF", en
       border-radius: 6px;
       background-color: #fff;
       text-align: center;
+    }
+    #error-message {
+        color: #c0392b;
+        font-weight: bold;
+        text-align: center;
+        margin-bottom: 1rem;
     }
     #bijeli {
       color: #000;
@@ -178,7 +169,7 @@ filter: progid: DXImageTransform.Microsoft.gradient( startColorstr="#E6EFFF", en
       position: fixed;
       top: 50%;
       right: 8px;
-      transform: translateY(-50%) translateX(100%);
+      transform: translateY(-50%) translateX(110%);
       width: 180px;
       background-color: #fff;
       border-left: 1px solid #ccc;
@@ -210,16 +201,15 @@ filter: progid: DXImageTransform.Microsoft.gradient( startColorstr="#E6EFFF", en
     .material-icons {
       font-size: 18px;
     }
-
     footer {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  height: 80px;
-  color: gray;
-  text-align: center;
-  line-height: 80px; /* mora biti isto kao height */
-}
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      height: 80px;
+      color: gray;
+      text-align: center;
+      line-height: 80px;
+    }
   </style>
 </head>
 <body>
@@ -262,11 +252,11 @@ filter: progid: DXImageTransform.Microsoft.gradient( startColorstr="#E6EFFF", en
       <button onclick="postaviIznos(50)">50€</button>
       <button onclick="postaviIznos(55)">55€</button>
       <button onclick="postaviIznos(60)">60€</button>
-      
     </div>
     <div>
       <label for="amount">Unesi iznos MNO:</label>
       <input type="number" id="amount" placeholder="€" required>
+      <p id="error-message" style="display: none;"></p>
       <button onclick="calculate()" class="calculatebutton">Izračunaj</button>
       <div class="results" id="results" style="display: none;">
         <p id="bijeli"><b>VT:</b> <span id="vtResult">0</span> kWh</p>
@@ -277,33 +267,37 @@ filter: progid: DXImageTransform.Microsoft.gradient( startColorstr="#E6EFFF", en
     </div>
   </div>
 
-    <footer>
-  <p>Izradio: Ivan Balić</p>
-</footer>
+  <footer>
+    <p>Izradio: Ivan Balić</p>
+  </footer>
+  
   <script>
+    const presetButtons = document.querySelectorAll('.preset-buttons button');
+    const amountInput = document.getElementById('amount');
+    const resultsDiv = document.getElementById('results');
+    const errorMessage = document.getElementById('error-message');
 
-  const presetButtons = document.querySelectorAll('.preset-buttons button');
-
-  // Klik na gumb označi ga
-  presetButtons.forEach(button => {
-    button.addEventListener('click', function() {
-      presetButtons.forEach(btn => btn.classList.remove('active'));
-      this.classList.add('active');
+    // Klik na gumb označi ga
+    presetButtons.forEach(button => {
+      button.addEventListener('click', function() {
+        presetButtons.forEach(btn => btn.classList.remove('active'));
+        this.classList.add('active');
+      });
     });
-  }); 
 
-
-  // Kad input polje postane aktivno (odabrano bilo kako) -> reset gumbi
-  amount.addEventListener('input', function() {
-    presetButtons.forEach(btn => btn.classList.remove('active'));
-  });
+    // Kad input polje postane aktivno (odabrano bilo kako) -> reset gumbi
+    amountInput.addEventListener('input', function() {
+      presetButtons.forEach(btn => btn.classList.remove('active'));
+    });
 
     function calculate() {
-      const L5 = parseFloat(document.getElementById('amount').value);
-      const resultsDiv = document.getElementById('results');
+      const L5 = parseFloat(amountInput.value);
+      errorMessage.style.display = 'none'; // Sakrij poruku o grešci
 
       if (isNaN(L5) || L5 <= 0) {
-        alert("Unesite ispravan iznos u eurima.");
+        errorMessage.textContent = "Unesite ispravan iznos u eurima.";
+        errorMessage.style.display = 'block';
+        resultsDiv.style.display = 'none';
         return;
       }
 
@@ -319,21 +313,35 @@ filter: progid: DXImageTransform.Microsoft.gradient( startColorstr="#E6EFFF", en
     }
 
     function resetCalculator() {
-      document.getElementById('amount').value = '';
-      document.getElementById('results').style.display = 'none';
+      amountInput.value = '';
+      resultsDiv.style.display = 'none';
+      errorMessage.style.display = 'none';
+      presetButtons.forEach(btn => btn.classList.remove('active'));
       document.getElementById('vtResult').textContent = '0';
       document.getElementById('ntResult').textContent = '0';
       document.getElementById('jtResult').textContent = '0';
     }
 
     function postaviIznos(iznos) {
-      document.getElementById('amount').value = iznos;
+      amountInput.value = iznos;
       calculate();
     }
 
     function toggleSidebar() {
       const sidebar = document.getElementById('sidebar');
       sidebar.classList.toggle('open');
+    }
+    
+    // Registracija Service Worker-a
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then(registration => {
+            console.log('ServiceWorker registration successful with scope: ', registration.scope);
+          }, err => {
+            console.log('ServiceWorker registration failed: ', err);
+          });
+      });
     }
   </script>
 </body>
