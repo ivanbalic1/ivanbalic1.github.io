@@ -173,36 +173,7 @@
     </footer>
     
     <script type="module">
-        // --- Firebase Inicijalizacija (MANDATORNA za Canvas) ---
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
-        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-
-        let app, db, auth;
-
-        window.onload = async function () {
-            try {
-                app = initializeApp(firebaseConfig);
-                db = getFirestore(app);
-                auth = getAuth(app);
-                setLogLevel('Debug');
-                
-                if (initialAuthToken) {
-                    await signInWithCustomToken(auth, initialAuthToken);
-                } else {
-                    await signInAnonymously(auth);
-                }
-                console.log("Firebase i autentiikacija spremni. Korisnik ID:", auth.currentUser?.uid || 'Anoniman');
-            } catch (error) {
-                console.error("Greška pri inicijalizaciji Firebasea ili autentifikaciji:", error);
-            }
-        };
-        // --- Kraj Firebase Inicijalizacije ---
+        // --- Skripta kalkulatora bez Firebase inicijalizacije ---
 
         const presetButtons = document.querySelectorAll('.preset-btn');
         const amountInput = document.getElementById('amount');
@@ -286,7 +257,7 @@
         // --- PWA Service Worker Registracija ---
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
+                navigator.serviceWorker.register('./sw.js')
                     .then(registration => {
                         console.log('ServiceWorker registration successful with scope: ', registration.scope);
                     }, err => {
