@@ -1,9 +1,9 @@
 const CACHE_NAME = 'mno-kalkulator-cache-v1';
-// Lista svih resursa koji su potrebni za offline rad.
+// Lista samo najvažnijih resursa potrebnih za minimalni offline rad.
 const urlsToCache = [
     './KalkulatorSkupova.html',
     './manifest.json'
-    // Dodajte putanje do ikona ovdje: './icon-192x192.png', './icon-512x512.png'
+    // Ikone su uklonjene jer fizički ne postoje, a njihov nedostatak bi spriječio instalaciju SW-a.
 ];
 
 // Faza instalacije: keširanje svih bitnih resursa
@@ -11,8 +11,11 @@ self.addEventListener('install', (event) => {
     event.waitUntil(
         caches.open(CACHE_NAME)
             .then((cache) => {
-                console.log('Service Worker: Otvoren cache');
+                console.log('Service Worker: Otvoren cache i keširanje resursa...');
                 return cache.addAll(urlsToCache);
+            })
+            .catch(error => {
+                console.error('Service Worker: GREŠKA prilikom keširanja:', error);
             })
     );
     self.skipWaiting();
