@@ -5,8 +5,8 @@ const urlsToCache = [
   '/',
   '/index.html'
   // Možeš dodati i ostale stranice ako želiš da rade offline
-  // '/HEP Kalkulator.html',
-  // '/ProvjeraObračuna.html',
+  '/HEP Kalkulator.html'
+  '/KalkulatorMNO.html',
   // itd.
 ];
 
