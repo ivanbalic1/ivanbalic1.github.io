@@ -173,7 +173,7 @@
     </footer>
     
     <script type="module">
-        // --- Skripta kalkulatora bez Firebase inicijalizacije ---
+        // NAPOMENA: Vraćam se na prethodnu verziju bez Firebasea, kako ste tražili u pretposljednjem koraku.
 
         const presetButtons = document.querySelectorAll('.preset-btn');
         const amountInput = document.getElementById('amount');
@@ -254,16 +254,17 @@
             sidebar.classList.toggle('open');
         }
 
-        // --- PWA Service Worker Registracija ---
-        if ('serviceWorker' in navigator) {
+        // --- PWA Service Worker Registracija (ISPRAVLJENA PUTANJA) ---        
+        if ('serviceWorker' in navigator) {            
             window.addEventListener('load', () => {
+                // Korištenje relativne putanje './sw.js' je sigurnije.
                 navigator.serviceWorker.register('./sw.js')
-                    .then(registration => {
-                        console.log('ServiceWorker registration successful with scope: ', registration.scope);
-                    }, err => {
-                        console.log('ServiceWorker registration failed: ', err);
-                    });
-            });
+                    .then(registration => {                        
+                        console.log('ServiceWorker registration successful with scope: ', registration.scope);                    
+                    }, err => {                        
+                        console.log('ServiceWorker registration failed: ', err);                    
+                    });            
+            });        
         }
     </script>
 </body>
