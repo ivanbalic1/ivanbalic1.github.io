@@ -1,1 +1,309 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HEP MNO Kalkulator</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#4f46e5">
+    
+    <link rel="apple-touch-icon" href="icon-192x192.png">
 
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7f9fb;
+            color: #585858;
+            padding-bottom: 80px;
+            min-height: 100vh;
+            box-sizing: border-box;
+            position: relative;
+        }
+        
+        .calculator-card {
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 0 10px rgba(0, 0, 0, 0.05);
+            background-color: #ffffff;
+            border-radius: 1.5rem;
+        }
+
+        .tariff-switch-btn.active {
+            background-color: #ffffff;
+            color: #4f46e5;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        details > summary { list-style: none; }
+        details > summary::-webkit-details-marker { display: none; }
+
+        footer {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 80px;
+            color: #9ca3af;
+            text-align: center;
+            line-height: 80px;
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center pt-8">
+    
+    <main class="w-full max-w-xl p-4 md:p-8 flex justify-center">
+        <div class="calculator-card w-full p-6 md:p-10">
+
+            <h1 class="text-3xl md:text-4xl font-extrabold text-center text-indigo-700 mb-6">
+                MNO Kalkulator
+            </h1>
+            <p class="text-center text-gray-500 mb-8">
+                Prvo odaberite tarifni model, a zatim unesite iznos ili kWh.
+            </p>
+
+            <div class="flex justify-center bg-gray-200 rounded-lg p-1 mb-6">
+                <button id="btn-dvotarifno" class="tariff-switch-btn w-1/2 p-2 rounded-md font-semibold transition-colors duration-300">Dvotarifno</button>
+                <button id="btn-jednotarifno" class="tariff-switch-btn w-1/2 p-2 rounded-md font-semibold transition-colors duration-300">Jednotarifno</button>
+            </div>
+
+            <div>
+                <label for="amount" class="block text-lg font-semibold text-gray-700 mb-2">Iznos MNO:</label>
+                <input type="number" id="amount" placeholder="€" required
+                       class="w-full p-3 border-2 border-indigo-200 rounded-lg bg-blue-50 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 mb-4 shadow-inner">
+                
+                <p id="error-message" class="text-red-600 font-bold text-center mb-4 hidden"></p>
+                
+                <div class="results mt-6 p-4 border border-gray-200 rounded-xl bg-white shadow-inner">
+                    <div id="dvotarifno-inputs" class="space-y-4">
+                        <div class="font-bold text-gray-800 flex justify-between items-center">
+                            <span><b class="text-red-500">VT:</b></span>
+                            <div class="flex items-center gap-2">
+                                <input type="number" id="vtInput" placeholder="0" class="w-32 p-2 text-right font-extrabold text-xl border rounded-md focus:ring-1 focus:ring-indigo-500">
+                                <span>kWh</span>
+                            </div>
+                        </div>
+                        <div class="font-bold text-gray-800 flex justify-between items-center">
+                            <span><b class="text-red-500">NT:</b></span>
+                             <div class="flex items-center gap-2">
+                                <input type="number" id="ntInput" placeholder="0" class="w-32 p-2 text-right font-extrabold text-xl border rounded-md focus:ring-1 focus:ring-indigo-500">
+                                 <span>kWh</span>
+                            </div>
+                        </div>
+                        
+                        <div class="!mt-4 p-2 bg-indigo-50 rounded-lg">
+                            <div class="font-bold text-gray-900 flex justify-between items-center">
+                                <span><b class="text-indigo-600">UKUPNO:</b></span>
+                                 <div class="flex items-center gap-2">
+                                    <span id="totalKwhResult" class="w-32 p-2 text-right font-extrabold text-xl">0</span>
+                                     <span>kWh</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="jednotarifno-inputs" class="hidden">
+                        <div class="font-bold text-blue-700 flex justify-between items-center">
+                            <span><b class="text-blue-500">JT:</b></span>
+                            <div class="flex items-center gap-2">
+                               <input type="number" id="jtInput" placeholder="0" class="w-32 p-2 text-right font-extrabold text-xl border rounded-md focus:ring-1 focus:ring-indigo-500">
+                                <span>kWh</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <details class="mt-4">
+                    <summary class="cursor-pointer text-center text-sm font-semibold text-gray-600 hover:text-indigo-600 p-2 rounded-md bg-gray-100">
+                        Prikaži/Sakrij trenutne cijene
+                    </summary>
+                    <div class="mt-2 p-4 bg-gray-50 border rounded-lg text-sm space-y-2">
+                        <p class="flex justify-between"><span>Fiksna naknada:</span> <strong id="cijena-fiksna"></strong></p>
+                        <p class="flex justify-between"><span>Osnovna cijena VT:</span> <strong id="cijena-vt"></strong></p>
+                        <p class="flex justify-between"><span>Osnovna cijena NT:</span> <strong id="cijena-nt"></strong></p>
+                        <p class="flex justify-between"><span>Ukupna cijena JT:</span> <strong id="cijena-jt"></strong></p>
+                    </div>
+                </details>
+
+                <button class="close-btnc w-full p-3 font-bold bg-gray-200 text-gray-800 rounded-xl cursor-pointer transition duration-300 transform hover:scale-[1.01] hover:bg-gray-300 mt-6 shadow-md" 
+                        onclick="resetCalculator()">
+                    Poništi
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>Aplikacija za HEP MNO Kalkulator</p>
+    </footer>
+    
+    <script type="module">
+        // --- KONFIGURACIJA CIJENA ---
+        const CIJENE_I_POSTAVKE = {
+            FIKSNA_NAKNADA: 3.05778,
+            CIJENA_VT_OSNOVNA: 0.190293,
+            CIJENA_NT_OSNOVNA: 0.097403,
+            CIJENA_JT_UKUPNA: 0.170228
+        };
+        // --- KRAJ KONFIGURACIJE ---
+
+        const amountInput = document.getElementById('amount');
+        const vtInput = document.getElementById('vtInput');
+        const ntInput = document.getElementById('ntInput');
+        const jtInput = document.getElementById('jtInput');
+        const totalKwhResult = document.getElementById('totalKwhResult'); 
+        const errorMessage = document.getElementById('error-message');
+        const btnDvotarifno = document.getElementById('btn-dvotarifno');
+        const btnJednotarifno = document.getElementById('btn-jednotarifno');
+        const dvotarifnoInputs = document.getElementById('dvotarifno-inputs');
+        const jednotarifnoInputs = document.getElementById('jednotarifno-inputs');
+
+        let currentTariffModel = 'dvotarifno';
+        let calculationLock = false;
+
+        const RATIO_NT_PER_VT = 0.538462;
+        const RATIO_VT_PER_NT = 1.857143;
+        const VT_SCENARIO_DENOMINATOR = CIJENE_I_POSTAVKE.CIJENA_VT_OSNOVNA + RATIO_NT_PER_VT * CIJENE_I_POSTAVKE.CIJENA_NT_OSNOVNA;
+        const NT_SCENARIO_DENOMINATOR = CIJENE_I_POSTAVKE.CIJENA_NT_OSNOVNA + RATIO_VT_PER_NT * CIJENE_I_POSTAVKE.CIJENA_VT_OSNOVNA;
+        
+        function setTariffModel(model) {
+            currentTariffModel = model;
+            if (model === 'dvotarifno') {
+                btnDvotarifno.classList.add('active');
+                btnJednotarifno.classList.remove('active');
+                dvotarifnoInputs.classList.remove('hidden');
+                jednotarifnoInputs.classList.add('hidden');
+            } else {
+                btnJednotarifno.classList.add('active');
+                btnDvotarifno.classList.remove('active');
+                jednotarifnoInputs.classList.remove('hidden');
+                dvotarifnoInputs.classList.add('hidden');
+            }
+            calculateFromEur();
+        }
+
+        function calculateFromEur() {
+            if (calculationLock) return;
+            calculationLock = true;
+            
+            const eurAmount = parseFloat(amountInput.value);
+            
+            clearError();
+            clearKwhInputs();
+
+            if (isNaN(eurAmount)) {
+                calculationLock = false;
+                return;
+            }
+
+            if (eurAmount <= CIJENE_I_POSTAVKE.FIKSNA_NAKNADA) {
+                if (amountInput.value !== '') {
+                     showError("Iznos mora biti veći od €" + CIJENE_I_POSTAVKE.FIKSNA_NAKNADA.toFixed(2));
+                }
+                calculationLock = false;
+                return;
+            }
+
+            const variableAmount = eurAmount - CIJENE_I_POSTAVKE.FIKSNA_NAKNADA;
+            
+            if (currentTariffModel === 'dvotarifno') {
+                const vtKwh = variableAmount / VT_SCENARIO_DENOMINATOR;
+                const ntKwh = variableAmount / NT_SCENARIO_DENOMINATOR;
+                vtInput.value = vtKwh.toFixed(0);
+                ntInput.value = ntKwh.toFixed(0);
+                totalKwhResult.textContent = (vtKwh + ntKwh).toFixed(0); 
+            } else {
+                const jtKwh = variableAmount / CIJENE_I_POSTAVKE.CIJENA_JT_UKUPNA;
+                jtInput.value = jtKwh.toFixed(0);
+            }
+            
+            calculationLock = false;
+        }
+
+        function calculateFromKwh() {
+            if (calculationLock) return;
+            calculationLock = true;
+            
+            clearError();
+            let totalEur = 0;
+            const vtKwh = parseFloat(vtInput.value) || 0;
+            const ntKwh = parseFloat(ntInput.value) || 0;
+            const jtKwh = parseFloat(jtInput.value) || 0;
+
+            if (currentTariffModel === 'dvotarifno') {
+                totalKwhResult.textContent = (vtKwh + ntKwh).toFixed(0);
+                if (vtKwh > 0 || ntKwh > 0) {
+                    const costVT = vtKwh * CIJENE_I_POSTAVKE.CIJENA_VT_OSNOVNA;
+                    const costNT = ntKwh * CIJENE_I_POSTAVKE.CIJENA_NT_OSNOVNA;
+                    totalEur = costVT + costNT + CIJENE_I_POSTAVKE.FIKSNA_NAKNADA;
+                }
+            } else {
+                if (jtKwh > 0) {
+                    totalEur = (jtKwh * CIJENE_I_POSTAVKE.CIJENA_JT_UKUPNA) + CIJENE_I_POSTAVKE.FIKSNA_NAKNADA;
+                }
+            }
+            
+            if (totalEur > 0) {
+                amountInput.value = totalEur.toFixed(2);
+            } else {
+                amountInput.value = '';
+            }
+            
+            calculationLock = false;
+        }
+
+        function populatePriceDisplay() {
+            document.getElementById('cijena-fiksna').textContent = CIJENE_I_POSTAVKE.FIKSNA_NAKNADA.toFixed(5) + ' €';
+            document.getElementById('cijena-vt').textContent = CIJENE_I_POSTAVKE.CIJENA_VT_OSNOVNA.toFixed(5) + ' €/kWh';
+            document.getElementById('cijena-nt').textContent = CIJENE_I_POSTAVKE.CIJENA_NT_OSNOVNA.toFixed(5) + ' €/kWh';
+            document.getElementById('cijena-jt').textContent = CIJENE_I_POSTAVKE.CIJENA_JT_UKUPNA.toFixed(5) + ' €/kWh';
+        }
+
+        function clearError() { errorMessage.classList.add('hidden'); }
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.classList.remove('hidden');
+        }
+        function clearKwhInputs() {
+            vtInput.value = '';
+            ntInput.value = '';
+            jtInput.value = '';
+            totalKwhResult.textContent = '0';
+        }
+        
+        window.resetCalculator = function() {
+            calculationLock = true;
+            amountInput.value = '';
+            clearKwhInputs();
+            clearError();
+            calculationLock = false;
+        }
+        
+        btnDvotarifno.addEventListener('click', () => setTariffModel('dvotarifno'));
+        btnJednotarifno.addEventListener('click', () => setTariffModel('jednotarifno'));
+        
+        amountInput.addEventListener('input', calculateFromEur);
+        vtInput.addEventListener('input', calculateFromKwh);
+        ntInput.addEventListener('input', calculateFromKwh);
+        jtInput.addEventListener('input', calculateFromKwh);
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            setTariffModel('dvotarifno');
+            populatePriceDisplay();
+        });
+
+        // NOVO: Registracija Service Worker-a
+        if ('serviceWorker' in navigator) {         
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(registration => {                        
+                        console.log('ServiceWorker je uspješno registriran: ', registration.scope);                       
+                    }, err => {                       
+                        console.log('Registracija ServiceWorker-a nije uspjela: ', err);                       
+                    });           
+            });     
+        }
+    </script>
+</body>
+</html>
