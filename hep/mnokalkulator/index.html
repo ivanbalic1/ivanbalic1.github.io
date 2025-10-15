@@ -19,6 +19,8 @@
 
         html {
             scrollbar-gutter: stable;
+            /*Skriva scrollbar za Firefox */
+            scrollbar-width: none;
         }
         body {
             font-family: 'Inter', sans-serif;
@@ -28,6 +30,11 @@
             min-height: 100vh;
             box-sizing: border-box;
             position: relative;
+        }
+
+        /* Skriva scrollbar za Chrome, Safari, Edge, Opera */
+        ::-webkit-scrollbar {
+            display: none;
         }
         
         .calculator-card {
