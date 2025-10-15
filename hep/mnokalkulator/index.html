@@ -17,10 +17,35 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
 
+           /* NOVO: PRILAGOĐENI STIL ZA SCROLLBAR */
+
+
         html {
             scrollbar-gutter: stable;
-            /*Skriva scrollbar za Firefox */
-            scrollbar-width: none;
+            /* Stil za Firefox */
+            scrollbar-width: thin; /* Postavlja širinu */
+            scrollbar-color: #a5b4fc #f1f5f9; /* Boja palca i traga */
+        }
+
+        /* Stil za Chrome, Edge, Safari i ostale WebKit preglednike */
+        ::-webkit-scrollbar {
+            width: 8px; /* Širina scrollbara */
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9; /* Boja pozadine (traga), npr. siva-100 */
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background-color: #a5b4fc; /* Boja "palca", npr. indigo-300 */
+            border-radius: 10px; /* Potpuno zaobljeni rubovi */
+            border: 2px solid #f1f5f9; /* Stvara efekt "paddinga" oko palca */
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background-color: #818cf8; /* Malo tamnija boja na hover, npr. indigo-400 */
+        }
+
         }
         body {
             font-family: 'Inter', sans-serif;
