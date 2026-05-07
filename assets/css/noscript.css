@@ -8,14 +8,16 @@
 
 /* Wrapper */
 
-	#wrapper {
-		background-color: #212931;
-		background-image: url("../../images/overlay.png"), linear-gradient(0deg, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.1)), url("../../images/bg.jpg");
-		background-size: auto,								auto,														100% auto;
-		background-position: center,								center,														top center;
-		background-repeat: repeat,								no-repeat,													no-repeat;
-		background-attachment: fixed,								fixed,														fixed;
-	}
+#wrapper {
+    background: linear-gradient(
+        135deg,
+        #0a0f1a 0%,
+        #0d1f2d 25%,
+        #0a2a2a 50%,
+        #0d1f2d 75%,
+        #0a0f1a 100%
+    );
+}
 
 		#wrapper.fade-in:before {
 			display: none;
