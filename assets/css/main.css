@@ -3233,7 +3233,7 @@ input, select, textarea {
     left: 0;
     width: 100%;
     height: 100%;
-    /* Koristimo RGBA za prozirnost (zadnji broj 0.8) */
+    /* Boje su iste, ali dodajemo prozirnost (npr. 0.8) direktno u gradijent */
     background: linear-gradient(
         135deg,
         rgba(10, 15, 26, 0.8) 0%,
@@ -3242,7 +3242,8 @@ input, select, textarea {
         rgba(13, 31, 45, 0.8) 75%,
         rgba(10, 15, 26, 0.8) 100%
     );
-    z-index: 1; /* Podižemo pozadinu malo iznad canvasa */
+    z-index: -1;
+    /* UKLONI opacity: 0.x; ako ga imaš ovdje! */
 }
 
 #wrapper > .bg.fixed {
@@ -3251,6 +3252,12 @@ input, select, textarea {
     height: 100vh;
 }
 
+/* Osiguraj da je tekst unutar pozadine i dalje bijel i vidljiv */
+#wrapper > .bg h1, 
+#wrapper > .bg p {
+    color: rgba(255, 255, 255, 1) !important;
+    opacity: 1 !important;
+}
 		#wrapper.fade-in:before {
 			pointer-events: none;
 			-moz-transition: opacity 1s ease-in-out;
