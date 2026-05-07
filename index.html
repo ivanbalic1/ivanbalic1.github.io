@@ -489,6 +489,9 @@ window.addEventListener('resize', () => {
 });
 
 animate();
+
+	canvas.style.zIndex = '100'; // Higher than the rest of the content
+canvas.style.pointerEvents = 'none'; // This ensures you can still click things under it
 </script>
 
 	</body>
