@@ -1,0 +1,389 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>Ivan Balić</title>
+		<meta charset="utf-8" />
+		<link rel="icon" href="images/favicon-32x32.png" type="image/x-icon"/>
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+		<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+		<style>
+			/* ── Accent colour override ── */
+			:root {
+				--accent: #0ea5a0;
+				--accent-light: #14c5bf;
+			}
+
+			a:hover,
+			#intro a:hover,
+			#nav a:hover,
+			#header a:hover,
+			#footer a:hover {
+				color: var(--accent) !important;
+				border-bottom-color: transparent;
+			}
+
+			input[type="submit"]:hover,
+			button:hover,
+			.button:hover {
+				box-shadow: inset 0 0 0 2px var(--accent) !important;
+				color: var(--accent) !important;
+			}
+
+			.button.primary:hover,
+			#intro .button.primary:hover {
+				background-color: var(--accent) !important;
+			}
+
+			#header .logo:hover {
+				border-color: var(--accent) !important;
+				color: var(--accent) !important;
+			}
+
+			#nav ul.links li.active {
+				background-color: #ffffff;
+			}
+
+			/* ── About section ── */
+			#about {
+				background: #ffffff;
+				padding: 4rem 4rem 3rem;
+				border-top: solid 2px #eeeeee;
+			}
+
+			.about-grid {
+				display: flex;
+				gap: 3rem;
+				align-items: flex-start;
+			}
+
+			.about-avatar {
+				width: 120px;
+				height: 120px;
+				border-radius: 50%;
+				background: linear-gradient(135deg, var(--accent), #1e252d);
+				flex-shrink: 0;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				font-size: 2.8rem;
+				color: #fff;
+				font-family: "Source Sans Pro", sans-serif;
+				font-weight: 900;
+				letter-spacing: 0.05em;
+			}
+
+			.about-text h2 {
+				margin-bottom: 0.75rem;
+				font-size: 1.5rem;
+			}
+
+			.about-text p {
+				margin-bottom: 0;
+				line-height: 1.9;
+				font-size: 0.95rem;
+				color: #444;
+			}
+
+			/* ── Skills section ── */
+			#skills {
+				background: #f9f9f9;
+				padding: 3rem 4rem;
+				border-top: solid 2px #eeeeee;
+			}
+
+			#skills h2 {
+				margin-bottom: 2rem;
+				text-align: center;
+			}
+
+			.skills-grid {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 1rem;
+				justify-content: center;
+			}
+
+			.skill-tag {
+				background: #ffffff;
+				border: 2px solid #eeeeee;
+				border-radius: 0;
+				padding: 0.55rem 1.25rem;
+				font-family: "Source Sans Pro", Helvetica, sans-serif;
+				font-weight: 900;
+				font-size: 0.75rem;
+				letter-spacing: 0.1em;
+				text-transform: uppercase;
+				color: #212931;
+				transition: border-color 0.2s ease, color 0.2s ease;
+			}
+
+			.skill-tag:hover {
+				border-color: var(--accent);
+				color: var(--accent);
+			}
+
+			.skill-tag.featured {
+				background: #212931;
+				border-color: #212931;
+				color: #fff;
+			}
+
+			.skill-tag.featured:hover {
+				background: var(--accent);
+				border-color: var(--accent);
+				color: #fff;
+			}
+
+			/* ── Project tech tags ── */
+			.tech-tags {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 0.4rem;
+				margin-bottom: 0.75rem;
+				justify-content: center;
+			}
+
+			.tech-tag {
+				background: #f0f0f0;
+				border-radius: 0;
+				padding: 0.2rem 0.6rem;
+				font-family: "Source Sans Pro", Helvetica, sans-serif;
+				font-size: 0.65rem;
+				font-weight: 900;
+				letter-spacing: 0.08em;
+				text-transform: uppercase;
+				color: #555;
+			}
+
+			/* ── Project description equalise ── */
+			#main > .posts > article p {
+				font-size: 0.88rem;
+				line-height: 1.8;
+				min-height: 4.5rem;
+				color: #555;
+			}
+
+			/* ── Subtle card hover ── */
+			#main > .posts > article {
+				transition: box-shadow 0.25s ease;
+			}
+
+			#main > .posts > article:hover {
+				box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+				z-index: 1;
+				position: relative;
+			}
+
+			/* ── Section divider label ── */
+			.section-label {
+				display: block;
+				font-family: "Source Sans Pro", Helvetica, sans-serif;
+				font-size: 0.7rem;
+				font-weight: 900;
+				letter-spacing: 0.2em;
+				text-transform: uppercase;
+				color: var(--accent);
+				margin-bottom: 0.5rem;
+			}
+
+			/* ── Responsive ── */
+			@media screen and (max-width: 736px) {
+				.about-grid {
+					flex-direction: column;
+					align-items: center;
+					text-align: center;
+				}
+
+				#about,
+				#skills {
+					padding: 2rem;
+				}
+			}
+		</style>
+	</head>
+	<body class="is-preload">
+
+		<!-- Wrapper -->
+		<div id="wrapper" class="fade-in">
+
+			<!-- Intro -->
+			<div id="intro">
+				<h1>Ivan Balić<br />
+				PORTFOLIO</h1>
+				<p>Database Administrator with a growing passion<br />for Data Analysis &amp; Web Development</p>
+				<ul class="actions">
+					<li><a href="#header" class="button icon solid solo fa-arrow-down scrolly">Continue</a></li>
+				</ul>
+			</div>
+
+			<!-- Header -->
+			<header id="header">
+				<a href="index.html" class="logo">Ivan Balić</a>
+			</header>
+
+			<!-- Nav -->
+			<nav id="nav">
+				<ul class="links">
+					<li class="active"><a href="index.html">Projects</a></li>
+					<li><a href="/blog.html">Blog</a></li>
+				</ul>
+				<ul class="icons">
+					<li><a href="https://github.com/ivanbalic1" target="_blank" class="icon brands fa-github"><span class="label">GitHub</span></a></li>
+					<li><a href="https://www.linkedin.com/in/ivan-balic" target="_blank" class="icon brands fa-linkedin"><span class="label">LinkedIn</span></a></li>
+				</ul>
+			</nav>
+
+			<!-- Main -->
+			<div id="main">
+
+				<!-- About -->
+				<section id="about">
+					<div class="about-grid">
+						<div class="about-avatar">IB</div>
+						<div class="about-text">
+							<span class="section-label">About me</span>
+							<h2>Hi, I'm Ivan 👋</h2>
+							<p>
+								I'm a Database Administrator based in Bjelovar, Croatia, with a growing passion for Data Analysis and Web Development.
+								I enjoy working with data — from designing relational databases and writing complex queries to building dashboards
+								that turn numbers into insights. I'm continuously expanding my skill set and working on personal projects
+								that bridge databases, analytics, and the web.
+							</p>
+						</div>
+					</div>
+				</section>
+
+				<!-- Skills -->
+				<section id="skills">
+					<span class="section-label" style="text-align:center; display:block; margin-bottom:0.4rem;">Technologies</span>
+					<h2>Skills &amp; Tools</h2>
+					<div class="skills-grid">
+						<span class="skill-tag featured">SQL</span>
+						<span class="skill-tag featured">MySQL</span>
+						<span class="skill-tag featured">Tableau</span>
+						<span class="skill-tag featured">Power BI</span>
+						<span class="skill-tag">HTML &amp; CSS</span>
+						<span class="skill-tag">JavaScript</span>
+						<span class="skill-tag">Python (basics)</span>
+						<span class="skill-tag">Excel</span>
+						<span class="skill-tag">Database Design</span>
+						<span class="skill-tag">ETL</span>
+						<span class="skill-tag">Data Visualisation</span>
+					</div>
+				</section>
+
+				<!-- Projects -->
+				<section class="posts">
+
+					<article>
+						<header>
+							<h2><a href="https://github.com/ivanbalic1/Library" target="_blank">Database for Library</a></h2>
+						</header>
+						<a href="https://github.com/ivanbalic1/Library" target="_blank" class="image fit">
+							<img src="images/library1.jpg" alt="Library Database project" />
+						</a>
+						<div class="tech-tags">
+							<span class="tech-tag">SQL</span>
+							<span class="tech-tag">MySQL</span>
+							<span class="tech-tag">Stored Procedures</span>
+							<span class="tech-tag">Triggers</span>
+						</div>
+						<p>Designed and built a relational database for a library system, complete with triggers, stored procedures, views, and role-based user access control.</p>
+						<ul class="actions special">
+							<li><a href="https://github.com/ivanbalic1/Library" target="_blank" class="button large">View Project</a></li>
+						</ul>
+					</article>
+
+					<article>
+						<header>
+							<h2><a href="https://gagabjelovar.com" target="_blank">Website for Apartment</a></h2>
+						</header>
+						<a href="https://gagabjelovar.com" target="_blank" class="image fit">
+							<img src="images/gaga.png" alt="Apartment Gaga website" />
+						</a>
+						<div class="tech-tags">
+							<span class="tech-tag">HTML</span>
+							<span class="tech-tag">CSS</span>
+							<span class="tech-tag">JavaScript</span>
+						</div>
+						<p>Designed and developed a modern, responsive website for Apartment Gaga in Bjelovar — focused on clean visuals and a smooth user experience.</p>
+						<ul class="actions special">
+							<li><a href="https://gagabjelovar.com" target="_blank" class="button">View Project</a></li>
+						</ul>
+					</article>
+
+					<article>
+						<header>
+							<h2><a href="https://public.tableau.com/app/profile/ivan.bali./vizzes" target="_blank">Tableau Dashboards</a></h2>
+						</header>
+						<a href="https://public.tableau.com/app/profile/ivan.bali./vizzes" target="_blank" class="image fit">
+							<img src="images/tableau.jpg" alt="Tableau dashboards" />
+						</a>
+						<div class="tech-tags">
+							<span class="tech-tag">Tableau</span>
+							<span class="tech-tag">Data Visualisation</span>
+						</div>
+						<p>A collection of interactive Tableau dashboards covering London Bike Rides, COVID-19 statistics, Croatian population trends, and World Happiness data.</p>
+						<ul class="actions special">
+							<li><a href="https://public.tableau.com/app/profile/ivan.bali./vizzes" target="_blank" class="button">View Projects</a></li>
+						</ul>
+					</article>
+
+					<article>
+						<header>
+							<h2><a href="https://drive.google.com/file/d/1gjv7pbHHWKWLZ3VRGn1qKzahc4Cbenmc/view?usp=sharing" target="_blank">Data Professionals Survey</a></h2>
+						</header>
+						<a href="https://drive.google.com/file/d/1gjv7pbHHWKWLZ3VRGn1qKzahc4Cbenmc/view?usp=sharing" target="_blank" class="image fit">
+							<img src="images/power-BI.jpeg" alt="Power BI survey dashboard" />
+						</a>
+						<div class="tech-tags">
+							<span class="tech-tag">Power BI</span>
+							<span class="tech-tag">Data Analysis</span>
+						</div>
+						<p>Analysed Alex Freberg's industry-wide survey using Power BI — covering salaries, job satisfaction, tools in use, and the perceived difficulty of entering data careers.</p>
+						<ul class="actions special">
+							<li><a href="https://drive.google.com/file/d/1gjv7pbHHWKWLZ3VRGn1qKzahc4Cbenmc/view?usp=sharing" target="_blank" class="button">View Project</a></li>
+						</ul>
+					</article>
+
+				</section>
+
+			</div>
+
+			<!-- Footer -->
+			<footer id="footer">
+				<section>
+					<section class="alt">
+						<h3>Location</h3>
+						<p>Bjelovar, Croatia</p>
+					</section>
+					<section>
+						<h3>Email</h3>
+						<p><a href="mailto:ivan-os@live.com">ivan-os@live.com</a></p>
+					</section>
+					<section>
+						<h3>Social</h3>
+						<ul class="icons alt">
+							<li><a href="https://github.com/ivanbalic1" target="_blank" class="icon brands fa-github"><span class="label">GitHub</span></a></li>
+							<li><a href="https://www.linkedin.com/in/ivan-balic" target="_blank" class="icon brands fa-linkedin"><span class="label">LinkedIn</span></a></li>
+						</ul>
+					</section>
+				</section>
+			</footer>
+
+		</div>
+
+		<!-- Scripts -->
+		<script src="assets/js/jquery.min.js"></script>
+		<script src="assets/js/jquery.scrollex.min.js"></script>
+		<script src="assets/js/jquery.scrolly.min.js"></script>
+		<script src="assets/js/browser.min.js"></script>
+		<script src="assets/js/breakpoints.min.js"></script>
+		<script src="assets/js/util.js"></script>
+		<script src="assets/js/main.js"></script>
+
+	</body>
+</html>
