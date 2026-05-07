@@ -3253,10 +3253,11 @@ input, select, textarea {
 }
 
 /* Osiguraj da je tekst unutar pozadine i dalje bijel i vidljiv */
-#wrapper > .bg h1, 
-#wrapper > .bg p {
-    color: rgba(255, 255, 255, 1) !important;
+#intro h1, #intro p {
     opacity: 1 !important;
+    color: #ffffff !important;
+    position: relative;
+    z-index: 10; /* Tekst mora biti visoko iznad svega */
 }
 		#wrapper.fade-in:before {
 			pointer-events: none;
