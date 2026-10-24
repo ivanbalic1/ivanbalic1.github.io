@@ -1,0 +1,882 @@
+<!doctype html>
+<html lang="hr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>Lectio divina</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400&family=Instrument+Sans:wght@400;500;600&family=Spectral:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap">
+<style>
+/* Layout: jedan uski stupac. Video na vrhu, ispod njega traka s planom (čitanje/tišina), pa postavke ili kontrole sesije. */
+:root{
+  --bg:#ECEFEA; --surface:#F7F8F5; --ink:#1C2927; --muted:#566762; --line:#CBD3CE;
+  --accent:#2E5E57; --accent-ink:#F4F7F5; --track-read:#BFD0C8; --track-sil:#DCE1DC; --track-clip:#C5CDDA; --warn:#9A4B2D;
+  --night:#0E1B19; --night-ink:#E6EEEA; --night-dim:#8CA39C; --night-line:#22352F; --sage:#9CC9BA;
+  --display:'Spectral',Georgia,'Times New Roman',serif;
+  --body:'Instrument Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,Menlo,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --bg:#0C1412; --surface:#131D1B; --ink:#E3EBE7; --muted:#8CA099; --line:#26352F;
+    --accent:#9CC9BA; --accent-ink:#0C1412; --track-read:#27463F; --track-sil:#1B2826; --track-clip:#2A3A4D; --warn:#E0906F;
+    color-scheme:dark;
+  }
+}
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.55 var(--body)}
+.wrap{
+  max-width:760px;margin:0 auto;display:grid;gap:20px;
+  padding-block:max(28px,env(safe-area-inset-top,0px)) max(56px,env(safe-area-inset-bottom,0px));
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+}
+h1{font:300 clamp(38px,9vw,56px)/1.02 var(--display);letter-spacing:-.015em;margin:0 0 8px}
+.lede{margin:0;color:var(--muted);max-width:44ch;text-wrap:balance}
+
+/* Pozornica */
+.stage{position:relative;aspect-ratio:16/9;background:#000;border-radius:10px;overflow:hidden;container-type:size}
+#player{position:absolute;inset:0;width:100%;height:100%;border:0}
+.veil,.tap{position:absolute;inset:0;display:grid;place-items:center}
+.veil{background:var(--night);color:var(--night-ink)}
+.tap{background:rgba(14,27,25,.84)}
+.ring{position:relative;height:150px;height:min(78cqh,210px);aspect-ratio:1/1;display:grid;place-items:center}
+.ring svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)}
+.ring circle{fill:none;stroke-width:3}
+.ring .track{stroke:var(--night-line)}
+.ring .arc{stroke:var(--sage);stroke-linecap:round;stroke-dasharray:552.92;stroke-dashoffset:0;transition:stroke-dashoffset .25s linear}
+.glow{position:absolute;inset:-10%;border-radius:50%;background:radial-gradient(closest-side,rgba(156,201,186,.18),transparent);animation:breathe 9s ease-in-out infinite}
+@keyframes breathe{0%,100%{transform:scale(.92);opacity:.55}50%{transform:scale(1.06);opacity:1}}
+.ringtext{position:relative;display:grid;justify-items:center;gap:2px}
+.ringtext .time{font:300 32px/1 var(--mono);font-size:min(16cqh,44px);font-variant-numeric:tabular-nums}
+.ringlabel{font:500 11px/1 var(--body);letter-spacing:.18em;text-transform:uppercase;color:var(--night-dim)}
+@media (prefers-reduced-motion:reduce){.glow{animation:none}.ring .arc{transition:none}}
+
+.caption{margin:10px 0 0;font-size:14px;line-height:1.4;color:var(--muted);overflow-wrap:anywhere}
+.caption.err{color:var(--warn)}
+
+/* Status sesije */
+.now{display:grid;gap:8px}
+.nowtop{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.phase{margin:0;font:600 13px/1 var(--body);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.remaining{font:400 15px/1 var(--mono);font-variant-numeric:tabular-nums;color:var(--muted)}
+.prompt{margin:0;font:italic 300 clamp(22px,4.8vw,30px)/1.3 var(--display);text-wrap:balance;min-height:1.3em}
+
+/* Traka plana */
+.bar{display:flex;gap:3px;height:12px}
+.seg{flex:1 1 0;min-width:6px;background:var(--track-sil);border-radius:6px;overflow:hidden;position:relative}
+.seg.read{background:var(--track-read)}
+.seg.clip{background:var(--track-clip)}
+.seg i{position:absolute;inset:0 auto 0 0;width:0;background:var(--accent)}
+.seg.silence i,.seg.pause i{opacity:.55}
+.legend{display:flex;flex-wrap:wrap;gap:6px 18px;margin:10px 0 0;font-size:13px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:7px}
+.legend b{width:16px;height:8px;border-radius:4px;display:inline-block;background:var(--track-read)}
+.legend b.s{background:var(--track-sil);border:1px solid var(--line)}
+.legend b.c{background:var(--track-clip)}
+
+/* Postavke */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px;display:grid;gap:22px}
+fieldset{border:0;margin:0;padding:0;min-width:0;display:grid;gap:12px}
+legend{padding:0;font:500 22px/1.2 var(--display);margin-bottom:4px}
+.hint{margin:0;color:var(--muted);font-size:14.5px;max-width:60ch}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.field{display:grid;gap:6px;min-width:0}
+.field>label{font-size:14px;font-weight:500}
+.pair{display:flex;gap:8px}
+.pair input{flex:1 1 auto;min-width:0}
+input[type=text],input[type=number]{
+  font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;
+  padding:10px 12px;min-height:44px;width:100%;
+}
+input.time{font-family:var(--mono);font-variant-numeric:tabular-nums}
+select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px 12px;min-height:44px;width:100%;max-width:100%;text-overflow:ellipsis}
+input:focus-visible,button:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.btn{
+  font:600 15px/1 var(--body);min-height:44px;padding:0 18px;border-radius:8px;cursor:pointer;
+  border:1px solid var(--line);background:transparent;color:var(--ink);white-space:nowrap;
+}
+.btn:hover:not(:disabled){border-color:var(--accent)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.big{min-height:54px;font-size:17px;width:100%}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font:500 14px/1 var(--body);min-height:40px;padding:0 16px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--ink);cursor:pointer}
+.chip[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.check{display:flex;gap:10px;align-items:flex-start;font-size:15px;cursor:pointer}
+.check input{width:20px;height:20px;margin:2px 0 0;accent-color:var(--accent);flex:none}
+.summary{margin:0;padding:14px 16px;border-radius:10px;background:var(--bg);border:1px solid var(--line);font-size:15px}
+.summary.bad{color:var(--warn);border-color:var(--warn)}
+.controls{display:flex;gap:10px;flex-wrap:wrap}
+.controls .btn{flex:1 1 140px}
+.done{text-align:center;justify-items:center;padding:34px 22px}
+.done h2{font:300 clamp(28px,6vw,38px)/1.15 var(--display);margin:0}
+.done p{margin:0;color:var(--muted)}
+.tapnote{color:var(--night-ink);font:300 24px/1.3 var(--display);margin:0 0 14px;text-align:center}
+.taparea{display:grid;justify-items:center;padding:16px}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <header>
+    <h1>Lectio divina</h1>
+    <p class="lede">Isto čitanje triput, a između njega tišina za razmatranje.</p>
+  </header>
+
+  <section aria-label="Video">
+    <div class="stage">
+      <div id="player"></div>
+      <div class="veil" id="veil" hidden>
+        <div class="ring">
+          <span class="glow"></span>
+          <svg viewBox="0 0 200 200" aria-hidden="true"><circle class="track" cx="100" cy="100" r="88"/><circle class="arc" id="arc" cx="100" cy="100" r="88"/></svg>
+          <div class="ringtext"><span class="time" id="ringTime">0:00</span><span class="ringlabel" id="ringLabel">tišina</span></div>
+        </div>
+      </div>
+      <div class="tap" id="tap" hidden>
+        <div class="taparea">
+          <p class="tapnote">Preglednik traži dodir za nastavak.</p>
+          <button class="btn primary" id="tapBtn" type="button">Nastavi</button>
+        </div>
+      </div>
+    </div>
+    <p class="caption" id="caption" role="status">Video se učitava.</p>
+  </section>
+
+  <section class="now" id="now" aria-live="polite" hidden>
+    <div class="nowtop">
+      <p class="phase" id="phase">Čitanje 1 od 3</p>
+      <span class="remaining" id="remaining">0:00</span>
+    </div>
+    <p class="prompt" id="prompt"></p>
+  </section>
+
+  <section aria-label="Plan sesije">
+    <div class="bar" id="bar"></div>
+    <p class="legend"><span><b></b>čitanje</span><span><b class="c"></b>snimka</span><span><b class="s"></b>tišina</span></p>
+  </section>
+
+  <form class="card" id="setup" autocomplete="off">
+    <fieldset>
+      <legend>Video</legend>
+      <div class="field" id="recentField" hidden>
+        <label for="recent">Najnoviji videi kanala<span id="chan"></span></label>
+        <select id="recent"></select>
+        <p class="hint" id="recentNote"></p>
+      </div>
+      <div class="field">
+        <label for="url">Poveznica na YouTube video</label>
+        <div class="pair">
+          <input type="text" id="url" inputmode="url" spellcheck="false">
+          <button class="btn" id="loadBtn" type="button">Učitaj</button>
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Čitanje u videu</legend>
+      <p class="hint">Premotajte video do početka čitanja evanđelja i kliknite Uzmi iz videa. Isto napravite na kraju čitanja, odmah nakon zadnje riječi. Vrijeme možete i upisati ručno, u obliku m:ss.</p>
+      <div class="grid2">
+        <div class="field">
+          <label for="start">Početak čitanja</label>
+          <div class="pair">
+            <input type="text" id="start" class="time" inputmode="numeric" placeholder="0:00">
+            <button class="btn" id="takeStart" type="button">Uzmi iz videa</button>
+          </div>
+        </div>
+        <div class="field">
+          <label for="end">Kraj čitanja</label>
+          <div class="pair">
+            <input type="text" id="end" class="time" inputmode="numeric" placeholder="1:30">
+            <button class="btn" id="takeEnd" type="button">Uzmi iz videa</button>
+          </div>
+        </div>
+      </div>
+      <div class="field">
+        <label for="fade">Utišavanje pred kraj čitanja</label>
+        <select id="fade" style="max-width:220px">
+          <option value="0">Isključeno</option>
+          <option value="2">2 sekunde</option>
+          <option value="3">3 sekunde</option>
+          <option value="5">5 sekundi</option>
+        </select>
+        <p class="hint">Glasnoća se postupno smanji do označenog kraja, a zatim vrati. Na iPhoneu i iPadu preglednik obično ne dopušta mijenjanje glasnoće iz stranice.</p>
+      </div>
+      <div><button class="btn" id="previewBtn" type="button">Provjeri odabir</button></div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Trajanje</legend>
+      <div class="field">
+        <label for="total">Ukupno trajanje u minutama</label>
+        <input type="number" id="total" min="2" max="180" step="1" inputmode="numeric" style="max-width:140px">
+      </div>
+      <div class="chips" id="chips" role="group" aria-label="Uobičajena trajanja">
+        <button class="chip" type="button" data-min="5" aria-pressed="false">5 min</button>
+        <button class="chip" type="button" data-min="10" aria-pressed="false">10 min</button>
+        <button class="chip" type="button" data-min="15" aria-pressed="false">15 min</button>
+        <button class="chip" type="button" data-min="20" aria-pressed="false">20 min</button>
+        <button class="chip" type="button" data-min="30" aria-pressed="false">30 min</button>
+      </div>
+      <label class="check"><input type="checkbox" id="finalSilence"><span>Tišina i nakon trećeg čitanja</span></label>
+      <label class="check"><input type="checkbox" id="bell" checked><span>Tiho zvono na početku tišine i neposredno prije sljedećeg čitanja</span></label>
+      <label class="check"><input type="checkbox" id="prompts" checked><span>Poticajna pitanja tijekom tišine</span></label>
+      <label class="check"><input type="checkbox" id="voice" checked><span>Glasovne snimke: Započinjemo prije početka (nakon nje 15 sekundi za dah), 1, 2 i 3 nakon pojedinog čitanja, a na kraju Oče naš</span></label>
+      <p class="hint" id="voiceNote" hidden></p>
+    </fieldset>
+
+    <p class="summary" id="summary" role="status"></p>
+    <button class="btn primary big" id="startBtn" type="submit" disabled>Započni</button>
+  </form>
+
+  <section class="controls" id="session" hidden>
+    <button class="btn primary" id="pauseBtn" type="button">Pauziraj</button>
+    <button class="btn" id="stopBtn" type="button">Prekini</button>
+  </section>
+
+  <section class="card done" id="done" hidden>
+    <h2>Lectio divina je završena.</h2>
+    <p>Ostanite još trenutak u tišini.</p>
+    <button class="btn" id="againBtn" type="button">Natrag na postavke</button>
+  </section>
+</main>
+
+<script>
+(function(){
+'use strict';
+
+/* <pure> */
+const pad = n => String(n).padStart(2,'0');
+function parseVideoId(input){
+  const s = (input||'').trim();
+  if(/^[\w-]{11}$/.test(s)) return s;
+  try{
+    const u = new URL(s);
+    if(u.hostname.endsWith('youtu.be')) return u.pathname.slice(1).split('/')[0] || null;
+    const v = u.searchParams.get('v');
+    if(v) return v;
+    const m = u.pathname.match(/\/(embed|shorts|live)\/([\w-]{11})/);
+    if(m) return m[2];
+  }catch(e){}
+  return null;
+}
+function parseTime(str){
+  const s = (str||'').trim();
+  if(!s) return NaN;
+  if(/^\d+(\.\d+)?$/.test(s)) return parseFloat(s);
+  const parts = s.split(':');
+  if(parts.length>3 || parts.some(p=>!/^\d+(\.\d+)?$/.test(p))) return NaN;
+  return parts.reduce((a,p)=>a*60+parseFloat(p),0);
+}
+function fmt(sec){
+  sec = Math.max(0,Math.round(sec));
+  const h = Math.floor(sec/3600), m = Math.floor(sec%3600/60), s = sec%60;
+  return h ? h+':'+pad(m)+':'+pad(s) : m+':'+pad(s);
+}
+/* Redoslijed: [uvod, dah] čitanje 1 [snimka 1] tišina 1, čitanje 2 [snimka 2] tišina 2, čitanje 3 [snimka 3] [tišina 3] [Oče naš].
+   Trajanje snimki (c.clips, u sekundama) i dah ulaze u ukupno vrijeme, pa tišina dobiva ostatak. */
+const BREATH = 15;
+function computePlan(c){
+  const R = c.end - c.start, total = c.totalMin*60, nSil = c.finalSilence ? 3 : 2;
+  const cl = c.clips || {};
+  const d = k => (cl[k] > 0 ? cl[k] : 0);
+  const clipsTotal = d('intro') + d('c1') + d('c2') + d('c3') + d('outro');
+  const pauseTotal = d('intro') ? BREATH : 0;
+  const S = (total - 3*R - clipsTotal - pauseTotal)/nSil;
+  const plan = [];
+  if(d('intro')){
+    plan.push({type:'clip',key:'intro',dur:d('intro')});
+    plan.push({type:'pause',key:'breath',dur:BREATH});
+  }
+  for(let i=1;i<=3;i++){
+    plan.push({type:'read',n:i,dur:R});
+    if(d('c'+i)) plan.push({type:'clip',key:'c'+i,n:i,dur:d('c'+i)});
+    if(i<3 || c.finalSilence) plan.push({type:'silence',n:i,dur:S});
+  }
+  if(d('outro')) plan.push({type:'clip',key:'outro',dur:d('outro')});
+  return {R:R,S:S,total:total,nSil:nSil,clipsTotal:clipsTotal,pauseTotal:pauseTotal,hasOutro:d('outro')>0,plan:plan,ok:R>0 && S>=1};
+}
+/* Faktor glasnoće (0 do 1) u zadnjim sekundama čitanja; blaga S-krivulja. */
+function fadeFactor(t, end, fadeSec){
+  if(!(fadeSec > 0)) return 1;
+  const f = (end - t) / fadeSec;
+  if(f >= 1) return 1;
+  if(f <= 0) return 0;
+  return f*f*(3 - 2*f);
+}
+const MONTH_NUM = {'siječnja':1,'veljače':2,'ožujka':3,'travnja':4,'svibnja':5,'lipnja':6,'srpnja':7,'kolovoza':8,
+  'rujna':9,'listopada':10,'studenoga':11,'studenog':11,'prosinca':12};
+/* Sadrži li naslov datum d (npr. "24. 10. 2026." ili "24. listopada")? */
+function titleMatchesDate(title, d){
+  const t = (title||'').toLowerCase(), day = d.getDate(), mon = d.getMonth() + 1;
+  let m, re = /(\d{1,2})\.\s*(\d{1,2})\.(?:\s*(\d{4}))?/g;
+  while((m = re.exec(t))){
+    if(+m[1] === day && +m[2] === mon && (!m[3] || +m[3] === d.getFullYear())) return true;
+  }
+  re = /(\d{1,2})\.\s*(siječnja|veljače|ožujka|travnja|svibnja|lipnja|srpnja|kolovoza|rujna|listopada|studenoga|studenog|prosinca)/g;
+  while((m = re.exec(t))){
+    if(+m[1] === day && MONTH_NUM[m[2]] === mon) return true;
+  }
+  return false;
+}
+/* videos je poredan od najnovijeg; ako nijedan naslov nema današnji datum, uzima se najnoviji */
+function pickDefault(videos, today){
+  return videos.find(function(v){ return titleMatchesDate(v.title, today); }) || videos[0] || null;
+}
+/* </pure> */
+
+const PROMPTS = [
+  'Koja mi je riječ ili rečenica posebno zapela?',
+  'Gdje se ovaj tekst dotiče mog života danas?',
+  'Na što me Bog poziva ili što mu želim reći?'
+];
+const ERR = {
+  2:'Poveznica videa nije ispravna.',
+  5:'Preglednik ne može reproducirati ovaj video.',
+  100:'Video nije pronađen ili je privatan.',
+  101:'Vlasnik videa ne dopušta ugrađivanje u druge stranice.',
+  150:'Vlasnik videa ne dopušta ugrađivanje u druge stranice.',
+  153:'YouTube nije dobio podatke o stranici. Otvorite aplikaciju preko web adrese (https:// ili http://localhost), a ne dvoklikom na datoteku.'
+};
+const STORE = 'lectio-divina-v1';
+const DEFAULT_URL = 'https://www.youtube.com/watch?v=v-TNmse3sKc';
+
+const $ = id => document.getElementById(id);
+const el = {};
+['url','loadBtn','caption','start','end','takeStart','takeEnd','previewBtn','total','chips','finalSilence','bell','prompts',
+ 'summary','startBtn','setup','session','now','phase','prompt','remaining','bar','pauseBtn','stopBtn','done','againBtn',
+ 'veil','arc','ringTime','ringLabel','tap','tapBtn','fade','recent','recentField','recentNote','chan','voice','voiceNote'].forEach(id => el[id] = $(id));
+
+/* ---------- pohrana postavki ---------- */
+function loadSaved(){ try{ return JSON.parse(localStorage.getItem(STORE)||'{}'); }catch(e){ return {}; } }
+function save(){
+  try{
+    localStorage.setItem(STORE, JSON.stringify({
+      url:el.url.value, start:el.start.value, end:el.end.value, total:el.total.value, fade:el.fade.value,
+      finalSilence:el.finalSilence.checked, bell:el.bell.checked, prompts:el.prompts.checked, voice:el.voice.checked
+    }));
+  }catch(e){}
+}
+const saved = loadSaved();
+el.url.value = saved.url || DEFAULT_URL;
+el.start.value = saved.start || '0:00';
+el.end.value = saved.end || '1:30';
+el.total.value = saved.total || '10';
+el.finalSilence.checked = !!saved.finalSilence;
+el.fade.value = saved.fade || '3';
+if(!el.fade.value) el.fade.value = '3';
+if(saved.bell === false) el.bell.checked = false;
+if(saved.prompts === false) el.prompts.checked = false;
+if(saved.voice === false) el.voice.checked = false;
+
+/* ---------- YouTube player ---------- */
+let player = null, playerReady = false;
+const TIMES = 'lectio-divina-times-v1';
+let currentId = parseVideoId(el.url.value) || parseVideoId(DEFAULT_URL);
+
+/* Početak i kraj čitanja pamte se za svaki video posebno. */
+function readTimes(){ try{ return JSON.parse(localStorage.getItem(TIMES)||'{}'); }catch(e){ return {}; } }
+function rememberTimes(){
+  if(!currentId) return;
+  try{
+    const t = readTimes();
+    t[currentId] = {start:el.start.value, end:el.end.value};
+    const keys = Object.keys(t);
+    if(keys.length > 60) delete t[keys[0]];
+    localStorage.setItem(TIMES, JSON.stringify(t));
+  }catch(e){}
+}
+function applyTimes(id){
+  const t = readTimes()[id];
+  if(t){ el.start.value = t.start; el.end.value = t.end; }
+}
+applyTimes(currentId);
+
+window.onYouTubeIframeAPIReady = function(){
+  const vars = {playsinline:1, rel:0, modestbranding:1};
+  if(/^https?:$/.test(location.protocol)) vars.origin = location.origin;
+  player = new YT.Player('player', {
+    videoId: currentId, playerVars: vars,
+    events: {
+      onReady: function(){ playerReady = true; updateCaption(); update(); maybeApplyDefault(); },
+      onStateChange: onState,
+      onError: onPlayerError
+    }
+  });
+};
+setTimeout(function(){
+  if(!playerReady) setCaption('Video se još učitava. Ako se ništa ne dogodi, provjerite internetsku vezu i otvarate li aplikaciju preko web adrese, a ne izravno kao datoteku.', true);
+}, 8000);
+
+function setCaption(text, isErr){ el.caption.textContent = text; el.caption.classList.toggle('err', !!isErr); }
+function updateCaption(){
+  try{
+    const d = player.getVideoData();
+    if(d && d.title) setCaption(d.title + (d.author ? ' · ' + d.author : ''), false);
+  }catch(e){}
+}
+function onState(e){
+  if(e.data === 1){ el.tap.hidden = true; }
+  if(e.data === 1 || e.data === 5) updateCaption();
+  if(e.data === 5) update();
+}
+function onPlayerError(e){
+  setCaption(ERR[e.data] || 'Video se ne može reproducirati.', true);
+  if(run.active) stopSession();
+}
+
+function loadVideo(id){
+  if(!playerReady) return;
+  stopPreview(true);
+  currentId = id;
+  el.url.value = 'https://www.youtube.com/watch?v=' + id;
+  player.cueVideoById(id);
+  setCaption('Video se učitava.', false);
+  applyTimes(id);
+  syncRecent();
+  update(); save();
+}
+el.loadBtn.addEventListener('click', function(){
+  const id = parseVideoId(el.url.value);
+  if(!id){ setCaption('Poveznica nije prepoznata. Zalijepite adresu YouTube videa.', true); return; }
+  loadVideo(id);
+});
+
+/* ---------- najnoviji videi kanala (radi samo kad aplikaciju poslužuje server.py) ---------- */
+let videos = [], listLoaded = false, defaultApplied = false;
+function fmtDate(iso){
+  const d = new Date(iso);
+  return isNaN(d) ? '' : d.getDate() + '. ' + (d.getMonth() + 1) + '. ' + d.getFullYear() + '.';
+}
+function renderRecent(){
+  el.recent.innerHTML = '';
+  videos.forEach(function(v){
+    const o = document.createElement('option');
+    o.value = v.id;
+    o.textContent = (fmtDate(v.published) ? fmtDate(v.published) + ' · ' : '') + v.title;
+    el.recent.appendChild(o);
+  });
+  syncRecent();
+}
+function syncRecent(){
+  if(videos.some(function(v){ return v.id === currentId; })) el.recent.value = currentId;
+}
+function maybeApplyDefault(){
+  if(defaultApplied || !listLoaded || !playerReady) return;
+  defaultApplied = true;
+  const today = new Date();
+  const pick = pickDefault(videos, today);
+  if(!pick) return;
+  const exact = videos.some(function(v){ return titleMatchesDate(v.title, today); });
+  el.recentNote.textContent = exact
+    ? 'Odabran je video čiji naslov sadrži današnji datum.'
+    : 'Odabran je najnoviji video. Ako treba, odaberite drugi s popisa.';
+  loadVideo(pick.id);
+}
+function fetchVideos(){
+  fetch('/api/videos', {cache:'no-store'})
+    .then(function(r){ if(!r.ok) throw new Error('http ' + r.status); return r.json(); })
+    .then(function(data){
+      if(!data || !Array.isArray(data.videos) || !data.videos.length) throw new Error('prazno');
+      videos = data.videos; listLoaded = true;
+      el.chan.textContent = data.channel ? ' · ' + data.channel : '';
+      renderRecent();
+      el.recentField.hidden = false;
+      maybeApplyDefault();
+    })
+    .catch(function(){ /* aplikacija nije pokrenuta preko server.py, ostaje ručna poveznica */ });
+}
+el.recent.addEventListener('change', function(){ loadVideo(el.recent.value); });
+
+/* ---------- postavke i plan ---------- */
+function readConfig(){
+  return {
+    start: parseTime(el.start.value), end: parseTime(el.end.value),
+    totalMin: parseFloat(el.total.value), finalSilence: el.finalSilence.checked,
+    bell: el.bell.checked, prompts: el.prompts.checked, voice: el.voice.checked,
+    clips: el.voice.checked ? clipDur : {}
+  };
+}
+function renderBar(plan){
+  el.bar.innerHTML = '';
+  if(!plan) return;
+  plan.plan.forEach(function(ph){
+    const seg = document.createElement('div');
+    seg.className = 'seg ' + ph.type;
+    seg.style.flexGrow = String(Math.max(ph.dur, 1));
+    seg.appendChild(document.createElement('i'));
+    seg.title = clipOrPhaseLabel(ph) + ' · ' + fmt(ph.dur);
+    el.bar.appendChild(seg);
+  });
+}
+function syncChips(){
+  const v = parseFloat(el.total.value);
+  el.chips.querySelectorAll('button').forEach(function(b){
+    b.setAttribute('aria-pressed', String(parseFloat(b.dataset.min) === v));
+  });
+}
+function update(){
+  if(run.active) return;
+  syncChips();
+  const c = readConfig();
+  let text = '', bad = false, plan = null;
+  if(!(c.start >= 0) || !(c.end > c.start)){
+    text = 'Upišite početak i kraj čitanja, na primjer 0:12 i 1:48.'; bad = true;
+  }else if(!(c.totalMin > 0)){
+    text = 'Upišite ukupno trajanje u minutama.'; bad = true;
+  }else{
+    let vd = 0; try{ vd = player ? (player.getDuration() || 0) : 0; }catch(e){}
+    plan = computePlan(c);
+    if(vd && c.end > vd + 1){
+      text = 'Kraj čitanja je nakon kraja videa (' + fmt(vd) + ').'; bad = true; plan = null;
+    }else if(plan.S < 1){
+      const need = Math.ceil((3*plan.R + plan.clipsTotal + plan.pauseTotal + plan.nSil*30)/60);
+      text = 'Čitanja' + (plan.clipsTotal ? ' i snimke' : '') + ' traju ' + fmt(3*plan.R + plan.clipsTotal + plan.pauseTotal) +
+             ', a to ne ostavlja mjesta za tišinu u ' + fmt(plan.total) + '. Produljite trajanje na barem ' + need + ' min.';
+      bad = true; plan = null;
+    }else{
+      text = 'Čitanje traje ' + fmt(plan.R) + ', triput ' + fmt(3*plan.R) + '.' +
+             (plan.clipsTotal ? ' Snimke traju ' + fmt(plan.clipsTotal) + '.' : '') +
+             (plan.pauseTotal ? ' Dah nakon uvoda traje ' + fmt(plan.pauseTotal) + '.' : '') +
+             ' Ostaju ' + plan.nSil + ' tišine od ' + fmt(plan.S) + '.';
+      if(plan.S < 10) text += ' Tišina je vrlo kratka.';
+    }
+  }
+  updateVoiceNote();
+  el.summary.textContent = text;
+  el.summary.classList.toggle('bad', bad);
+  renderBar(plan);
+  el.startBtn.disabled = !(plan && plan.ok && playerReady);
+  el.previewBtn.disabled = !(playerReady && c.end > c.start && c.start >= 0);
+  el.takeStart.disabled = el.takeEnd.disabled = !playerReady;
+}
+['start','end','total','url'].forEach(function(k){ el[k].addEventListener('input', function(){ update(); save(); }); });
+['finalSilence','bell','prompts','fade','voice'].forEach(function(k){ el[k].addEventListener('change', function(){ update(); save(); }); });
+['start','end'].forEach(function(k){ el[k].addEventListener('input', rememberTimes); });
+el.chips.addEventListener('click', function(e){
+  const b = e.target.closest('button'); if(!b) return;
+  el.total.value = b.dataset.min; update(); save();
+});
+el.takeStart.addEventListener('click', function(){
+  try{ el.start.value = fmt(Math.floor(player.getCurrentTime())); }catch(e){}
+  rememberTimes(); update(); save();
+});
+el.takeEnd.addEventListener('click', function(){
+  try{ el.end.value = fmt(Math.ceil(player.getCurrentTime())); }catch(e){}
+  rememberTimes(); update(); save();
+});
+
+/* ---------- provjera odabira ---------- */
+let prevTimer = null;
+function stopPreview(pause){
+  if(prevTimer){ clearInterval(prevTimer); prevTimer = null; if(pause && player){ try{ player.pauseVideo(); }catch(e){} } }
+  restoreVolume();
+}
+
+/* ---------- utišavanje pred kraj čitanja ---------- */
+const vol = {base:100, active:false};
+function captureVolume(){
+  try{ vol.base = player.isMuted() ? 0 : player.getVolume(); }catch(e){ vol.base = 0; }
+}
+function applyFade(t, end){
+  const f = fadeFactor(t, end, parseFloat(el.fade.value) || 0);
+  if(f >= 1) return;
+  if(!vol.active){
+    captureVolume();
+    if(vol.base <= 0) return;
+    vol.active = true;
+  }
+  try{ player.setVolume(Math.round(vol.base * f)); }catch(e){}
+}
+function restoreVolume(){
+  if(vol.active){
+    vol.active = false;
+    try{ player.setVolume(vol.base); }catch(e){}
+  }
+}
+el.previewBtn.addEventListener('click', function(){
+  const c = readConfig();
+  if(!playerReady || !(c.end > c.start)) return;
+  stopPreview(false);
+  player.seekTo(c.start, true); player.playVideo();
+  const t0 = performance.now();
+  prevTimer = setInterval(function(){
+    let t = 0; try{ t = player.getCurrentTime(); }catch(e){}
+    if(performance.now() - t0 < 1200) return;
+    if(t >= c.end - 0.1) stopPreview(true); else applyFade(t, c.end);
+  }, 100);
+});
+
+/* ---------- glasovne snimke ---------- */
+const CLIPS = {intro:'Započinjemo.mp3', c1:'1.mp3', c2:'2.mp3', c3:'3.mp3', outro:'Oče naš.mp3'};
+const clipDur = {intro:0, c1:0, c2:0, c3:0, outro:0};
+let clipsSettled = 0;
+function clipUrl(k){ return encodeURIComponent(CLIPS[k]); }
+function clipOrPhaseLabel(ph){
+  if(ph.type === 'read') return 'Čitanje ' + ph.n;
+  if(ph.type === 'silence') return 'Tišina ' + ph.n;
+  if(ph.type === 'pause') return 'Udah i izdah';
+  return ph.key === 'intro' ? 'Uvod' : ph.key === 'outro' ? 'Oče naš' : 'Snimka ' + ph.n;
+}
+function updateVoiceNote(){
+  const keys = Object.keys(CLIPS);
+  if(!el.voice.checked || clipsSettled < keys.length){ el.voiceNote.hidden = true; return; }
+  const missing = keys.filter(function(k){ return !(clipDur[k] > 0); }).map(function(k){ return CLIPS[k]; });
+  if(!missing.length){ el.voiceNote.hidden = true; return; }
+  el.voiceNote.hidden = false;
+  el.voiceNote.textContent = missing.length === keys.length
+    ? 'Snimke nisu pronađene. Datoteke moraju biti u istoj mapi kao aplikacija, a aplikacija mora biti pokrenuta preko server.py.'
+    : 'Nedostaje: ' + missing.join(', ') + '. Te se snimke preskaču.';
+}
+Object.keys(CLIPS).forEach(function(k){
+  const a = new Audio();
+  let done = false;
+  function settle(){ if(!done){ done = true; clipsSettled++; update(); } }
+  a.preload = 'metadata';
+  a.addEventListener('loadedmetadata', function(){
+    if(isFinite(a.duration) && a.duration > 0) clipDur[k] = a.duration;
+    settle();
+  });
+  a.addEventListener('error', function(){ clipDur[k] = 0; settle(); });
+  a.src = clipUrl(k);
+});
+/* Jedan zajednički element za reprodukciju. Prva snimka kreće iz klika na Započni, pa preglednik dopušta i sljedeće. */
+const voice = new Audio();
+voice.preload = 'auto';
+voice.addEventListener('playing', function(){ run.clipStarted = true; el.tap.hidden = true; });
+voice.addEventListener('ended', function(){ run.clipEnded = true; });
+voice.addEventListener('error', function(){ if(run.active) run.clipEnded = true; });
+
+/* ---------- zvono ---------- */
+let ac = null;
+function ensureAudio(){
+  try{
+    ac = ac || new (window.AudioContext || window.webkitAudioContext)();
+    if(ac.state === 'suspended') ac.resume();
+  }catch(e){}
+}
+function bell(){
+  if(!ac) return;
+  const t = ac.currentTime;
+  [[392,0.22,4.5],[392*2.76,0.07,2.4],[392*5.4,0.025,1.3]].forEach(function(p){
+    const o = ac.createOscillator(), g = ac.createGain();
+    o.type = 'sine'; o.frequency.value = p[0];
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(p[1], t + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + p[2]);
+    o.connect(g); g.connect(ac.destination);
+    o.start(t); o.stop(t + p[2] + 0.1);
+  });
+}
+
+/* ---------- zaslon ostaje budan ---------- */
+let wake = null;
+function requestWake(){
+  try{ if('wakeLock' in navigator) navigator.wakeLock.request('screen').then(function(w){ wake = w; }).catch(function(){}); }catch(e){}
+}
+function releaseWake(){ try{ if(wake){ wake.release(); wake = null; } }catch(e){} }
+document.addEventListener('visibilitychange', function(){
+  if(document.visibilityState === 'visible' && run.active) requestWake();
+});
+
+/* ---------- sesija ---------- */
+const run = {active:false, plan:null, cfg:null, i:-1, phaseStart:0, last:0, paused:false, timer:null,
+             readStarted:false, bellDone:false, lastReadElapsed:0, tapTimer:null,
+             clipStarted:false, clipEnded:false, lastClipElapsed:0};
+const C = 2 * Math.PI * 88;
+
+function showView(v){
+  el.setup.hidden = v !== 'setup';
+  el.session.hidden = v !== 'session';
+  el.now.hidden = v !== 'session';
+  el.done.hidden = v !== 'done';
+}
+function setVeil(on){ el.veil.hidden = !on; }
+
+el.setup.addEventListener('submit', function(e){ e.preventDefault(); startSession(); });
+
+function startSession(){
+  const cfg = readConfig(), p = computePlan(cfg);
+  if(!p.ok || !playerReady) return;
+  stopPreview(true);
+  ensureAudio(); requestWake();
+  run.active = true; run.plan = p; run.cfg = cfg; run.i = -1; run.paused = false;
+  el.pauseBtn.textContent = 'Pauziraj';
+  showView('session');
+  next();
+  run.timer = setInterval(tick, 100);
+}
+function next(){
+  run.i++;
+  if(run.i >= run.plan.plan.length){ finishSession(); return; }
+  enterPhase();
+}
+function enterPhase(){
+  const ph = run.plan.plan[run.i];
+  run.phaseStart = performance.now(); run.last = run.phaseStart;
+  run.bellDone = false; run.readStarted = false; run.lastReadElapsed = 0;
+  clearTimeout(run.tapTimer);
+  el.tap.hidden = true;
+  if(ph.type === 'read'){
+    setVeil(false);
+    restoreVolume();
+    player.seekTo(run.cfg.start, true);
+    player.playVideo();
+    run.tapTimer = setTimeout(function(){
+      let st = -1; try{ st = player.getPlayerState(); }catch(e){}
+      if(run.active && !run.paused && !run.readStarted && st !== 1) el.tap.hidden = false;
+    }, 2500);
+  }else if(ph.type === 'clip'){
+    try{ player.pauseVideo(); }catch(e){}
+    restoreVolume();
+    setVeil(true);
+    el.ringLabel.textContent = ph.key === 'outro' ? 'molitva' : 'snimka';
+    setRing(ph.dur, ph.dur);
+    run.clipEnded = false; run.clipStarted = false; run.lastClipElapsed = 0;
+    voice.src = clipUrl(ph.key);
+    const pr = voice.play();
+    if(pr && pr.catch) pr.catch(function(err){
+      if(run.active && err && err.name === 'NotAllowedError') el.tap.hidden = false;
+    });
+    run.tapTimer = setTimeout(function(){
+      if(run.active && !run.paused && !run.clipStarted) el.tap.hidden = false;
+    }, 2500);
+  }else{
+    try{ player.pauseVideo(); }catch(e){}
+    restoreVolume();
+    setVeil(true);
+    el.ringLabel.textContent = ph.type === 'pause' ? 'dah' : 'tišina';
+    setRing(ph.dur, ph.dur);
+    if(ph.type === 'silence' && run.cfg.bell) bell();
+  }
+  renderNow();
+  updateProgress(0);
+}
+function renderNow(){
+  const ph = run.plan.plan[run.i];
+  if(ph.type === 'read'){
+    el.phase.textContent = 'Čitanje ' + ph.n + ' od 3';
+    el.prompt.textContent = '';
+  }else if(ph.type === 'clip'){
+    el.phase.textContent = ph.key === 'intro' ? 'Uvod' : ph.key === 'outro' ? 'Oče naš' : 'Snimka ' + ph.n + ' od 3';
+    el.prompt.textContent = '';
+  }else if(ph.type === 'pause'){
+    el.phase.textContent = 'Udah i izdah';
+    el.prompt.textContent = 'Nekoliko puta polako udahnite i izdahnite.';
+  }else{
+    el.phase.textContent = 'Tišina ' + ph.n + ' od ' + run.plan.nSil;
+    el.prompt.textContent = run.cfg.prompts ? PROMPTS[ph.n - 1] : '';
+  }
+}
+function setRing(rem, dur){
+  el.arc.style.strokeDashoffset = String(C * (1 - Math.max(0, rem) / dur));
+  el.ringTime.textContent = fmt(Math.ceil(Math.max(0, rem)));
+}
+function updateProgress(inPhase){
+  const segs = el.bar.children;
+  let before = 0;
+  run.plan.plan.forEach(function(ph, i){
+    let f = 0;
+    if(i < run.i){ f = 1; before += ph.dur; }
+    else if(i === run.i){ f = Math.min(inPhase / ph.dur, 1); }
+    if(segs[i]) segs[i].firstChild.style.width = (f * 100) + '%';
+  });
+  const rem = run.plan.total - (before + (run.i < run.plan.plan.length ? inPhase : 0));
+  el.remaining.textContent = fmt(Math.ceil(Math.max(0, rem)));
+}
+function tick(){
+  if(!run.active) return;
+  const now = performance.now(), dt = now - run.last;
+  run.last = now;
+  const ph = run.plan.plan[run.i];
+  let inPhase = 0;
+  if(ph.type === 'clip'){
+    if(!run.paused){
+      if(run.clipEnded){ next(); return; }
+      run.lastClipElapsed = Math.min(voice.currentTime || 0, ph.dur);
+    }
+    inPhase = run.lastClipElapsed;
+    setRing(ph.dur - inPhase, ph.dur);
+  }else if(ph.type === 'silence' || ph.type === 'pause'){
+    if(run.paused) run.phaseStart += dt;
+    inPhase = (now - run.phaseStart) / 1000;
+    const rem = ph.dur - inPhase;
+    if(ph.type === 'silence' && run.cfg.bell && !run.bellDone && rem <= 2 && ph.dur > 8 && run.i < run.plan.plan.length - 1){
+      run.bellDone = true; bell();
+    }
+    if(rem <= 0){ next(); return; }
+    setRing(rem, ph.dur);
+  }else if(run.paused){
+    inPhase = run.lastReadElapsed;
+  }else{
+    let t = 0, st = -1;
+    try{ t = player.getCurrentTime(); st = player.getPlayerState(); }catch(e){}
+    const age = now - run.phaseStart;
+    if(!run.readStarted){
+      if(st === 1 && t >= run.cfg.start - 0.5 && t < run.cfg.end) run.readStarted = true;
+      else if(st === 0 && age > 1500){ next(); return; }
+    }else if(t >= run.cfg.end - 0.1 || (st === 0 && age > 1500)){
+      next(); return;
+    }
+    if(run.readStarted) applyFade(t, run.cfg.end);
+    inPhase = run.readStarted ? Math.min(Math.max(t - run.cfg.start, 0), ph.dur) : 0;
+    run.lastReadElapsed = inPhase;
+  }
+  updateProgress(inPhase);
+}
+el.pauseBtn.addEventListener('click', function(){
+  if(!run.active) return;
+  run.paused = !run.paused;
+  el.pauseBtn.textContent = run.paused ? 'Nastavi' : 'Pauziraj';
+  const ph = run.plan.plan[run.i];
+  if(ph.type === 'read'){
+    try{ run.paused ? player.pauseVideo() : player.playVideo(); }catch(e){}
+  }else if(ph.type === 'clip'){
+    try{ run.paused ? voice.pause() : voice.play(); }catch(e){}
+  }
+});
+el.tapBtn.addEventListener('click', function(){
+  el.tap.hidden = true;
+  const ph = run.active ? run.plan.plan[run.i] : null;
+  try{
+    if(ph && ph.type === 'clip') voice.play(); else player.playVideo();
+  }catch(e){}
+});
+function endRun(){
+  run.active = false;
+  clearInterval(run.timer); clearTimeout(run.tapTimer);
+  el.tap.hidden = true; setVeil(false);
+  try{ player.pauseVideo(); }catch(e){}
+  try{ voice.pause(); }catch(e){}
+  restoreVolume();
+  releaseWake();
+}
+function stopSession(){
+  endRun();
+  showView('setup');
+  update();
+}
+function finishSession(){
+  const bellOn = run.cfg.bell && !run.plan.hasOutro;
+  endRun();
+  updateProgress(0);
+  el.remaining.textContent = '0:00';
+  if(bellOn) bell();
+  showView('done');
+}
+el.stopBtn.addEventListener('click', stopSession);
+el.againBtn.addEventListener('click', function(){ showView('setup'); update(); });
+
+showView('setup');
+update();
+fetchVideos();
+})();
+</script>
+<script src="https://www.youtube.com/iframe_api" async></script>
+</body>
+</html>
